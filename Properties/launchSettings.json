@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BudgetBook (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "BudgetBook (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
