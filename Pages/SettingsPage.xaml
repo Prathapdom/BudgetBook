@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cards="using:BudgetBook.Controls.Cards"
     mc:Ignorable="d">
 
     <ScrollViewer Background="{ThemeResource AppPageBackgroundBrush}">
@@ -14,7 +15,7 @@
                     HorizontalAlignment="Left">
             <TextBlock Style="{StaticResource AppPageTitleTextStyle}" Text="Settings" />
 
-            <Border Style="{StaticResource AppSettingsGroupStyle}">
+            <cards:AppCard MinWidth="320">
                 <StackPanel Spacing="{ThemeResource AppControlSpacing}">
                     <TextBlock Text="Appearance" Style="{StaticResource AppSectionTitleTextStyle}" />
                     <Grid ColumnSpacing="{ThemeResource AppCardSpacing}">
@@ -50,7 +51,7 @@
                         </ComboBox>
                     </Grid>
 
-                    <Border Style="{StaticResource AppCardStyle}" Margin="0,8,0,0">
+                    <cards:AppCard Margin="0,8,0,0">
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -72,11 +73,11 @@
                                     Style="{StaticResource AppAccentButtonStyle}"
                                     VerticalAlignment="Center" />
                         </Grid>
-                    </Border>
+                    </cards:AppCard>
                 </StackPanel>
-            </Border>
+            </cards:AppCard>
 
-            <Border Style="{StaticResource AppSettingsGroupStyle}">
+            <cards:AppCard MinWidth="320">
                 <StackPanel Spacing="{ThemeResource AppControlSpacing}">
                     <TextBlock Text="Data" Style="{StaticResource AppSectionTitleTextStyle}" />
                     <TextBlock Text="{x:Bind DbPath}" TextWrapping="Wrap"
@@ -86,15 +87,15 @@
                         <Button Click="OpenFolder_Click" Content="Open data folder" />
                     </StackPanel>
                 </StackPanel>
-            </Border>
+            </cards:AppCard>
 
-            <Border Style="{StaticResource AppSettingsGroupStyle}">
+            <cards:AppCard MinWidth="320">
                 <StackPanel Spacing="{ThemeResource AppControlSpacing}">
                     <TextBlock Text="About" Style="{StaticResource AppSectionTitleTextStyle}" />
                     <TextBlock Text="BudgetBook — a simple local budget tracker. Version 1.0.0."
                                TextWrapping="Wrap" />
                 </StackPanel>
-            </Border>
+            </cards:AppCard>
         </StackPanel>
     </ScrollViewer>
 </Page>

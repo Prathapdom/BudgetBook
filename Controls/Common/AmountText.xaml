@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="BudgetBook.Controls.Common.AmountText"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <TextBlock x:Name="DisplayText"
+               FontFamily="{x:Bind FontFamily, Mode=OneWay}"
+               FontSize="{x:Bind FontSize, Mode=OneWay}"
+               FontStyle="{x:Bind FontStyle, Mode=OneWay}"
+               FontWeight="{x:Bind FontWeight, Mode=OneWay}"
+               HorizontalAlignment="Stretch"
+               TextAlignment="Right" />
+</UserControl>

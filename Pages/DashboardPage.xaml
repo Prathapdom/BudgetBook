@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cards="using:BudgetBook.Controls.Cards"
+    xmlns:common="using:BudgetBook.Controls.Common"
     xmlns:vm="using:BudgetBook.ViewModels"
     mc:Ignorable="d">
 
@@ -36,35 +38,16 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Income" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="{x:Bind Vm.Income, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Foreground="{ThemeResource AppPositiveAmountBrush}"
-                               Style="{StaticResource AppMetricValueTextStyle}" />
-                </StackPanel>
-            </Border>
-            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Expense" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="{x:Bind Vm.Expense, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Foreground="{ThemeResource AppNegativeAmountBrush}"
-                               Style="{StaticResource AppMetricValueTextStyle}" />
-                </StackPanel>
-            </Border>
-            <Border Grid.Column="2" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Net" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="{x:Bind Vm.Net, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Foreground="{ThemeResource AppNeutralAmountBrush}"
-                               Style="{StaticResource AppMetricValueTextStyle}" />
-                </StackPanel>
-            </Border>
+            <cards:MetricCard Grid.Column="0" Title="Income" Glyph="&#xE8C7;" Tone="Positive"
+                              Value="{x:Bind Vm.Income, Mode=OneWay, Converter={StaticResource Currency}}" />
+            <cards:MetricCard Grid.Column="1" Title="Expense" Glyph="&#xE9D2;" Tone="Negative"
+                              Value="{x:Bind Vm.Expense, Mode=OneWay, Converter={StaticResource Currency}}" />
+            <cards:MetricCard Grid.Column="2" Title="Net" Glyph="&#xE8EF;" Tone="Neutral"
+                              Value="{x:Bind Vm.Net, Mode=OneWay, Converter={StaticResource Currency}}" />
         </Grid>
 
-        <TextBlock Grid.Row="2" Text="Spending by category"
-                   Style="{StaticResource AppSectionTitleTextStyle}"
-                   Margin="{ThemeResource AppSectionHeaderMargin}" />
+        <common:SectionHeader Grid.Row="2" Title="Spending by category"
+                              Margin="{ThemeResource AppSectionHeaderMargin}" />
 
         <ScrollViewer Grid.Row="3">
             <StackPanel Spacing="{ThemeResource AppControlSpacing}">
@@ -88,9 +71,10 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Text="No expenses recorded this month."
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Visibility="{x:Bind Vm.HasSpend, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                <common:EmptyState Title="No expenses this month"
+                                   Message="Add an expense to see the category breakdown here."
+                                   Glyph="&#xE9D2;"
+                                   Visibility="{x:Bind Vm.HasSpend, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
             </StackPanel>
         </ScrollViewer>
     </Grid>

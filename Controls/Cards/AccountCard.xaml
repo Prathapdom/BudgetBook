@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="BudgetBook.Controls.Cards.AccountCard"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cards="using:BudgetBook.Controls.Cards">
+
+    <cards:AppCard Command="{x:Bind Command, Mode=OneWay}"
+                   CommandParameter="{x:Bind CommandParameter, Mode=OneWay}">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Width="40" Height="40" CornerRadius="20"
+                    Background="{ThemeResource AppAccentSubtleBrush}">
+                <FontIcon Glyph="{x:Bind Glyph, Mode=OneWay}"
+                          Foreground="{ThemeResource AppAccentBrush}" FontSize="17" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{x:Bind AccountName, Mode=OneWay}" FontWeight="SemiBold" />
+                <TextBlock x:Name="SubtitleText" Text="{x:Bind Subtitle, Mode=OneWay}"
+                           Style="{StaticResource AppSecondaryTextStyle}" FontSize="12" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="{x:Bind BalanceLabel, Mode=OneWay}" FontWeight="SemiBold"
+                           Foreground="{ThemeResource AppNeutralAmountBrush}" HorizontalAlignment="Right" />
+                <TextBlock Text="{x:Bind CurrencyCode, Mode=OneWay}"
+                           Style="{StaticResource AppSecondaryTextStyle}" FontSize="12"
+                           HorizontalAlignment="Right" />
+            </StackPanel>
+        </Grid>
+    </cards:AppCard>
+</UserControl>

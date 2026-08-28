@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cards="using:BudgetBook.Controls.Cards"
     xmlns:data="using:BudgetBook.Data"
     mc:Ignorable="d">
 
@@ -28,21 +29,16 @@
         <ListView Grid.Row="1"
                   ItemsSource="{x:Bind Vm.Items, Mode=OneWay}"
                   SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}"
+                  HorizontalContentAlignment="Stretch"
                   DoubleTapped="List_DoubleTapped">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="data:Category">
-                    <Grid Padding="0,8" ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Border Width="16" Height="16" CornerRadius="4" VerticalAlignment="Center"
-                                Background="{x:Bind ColorHex, Converter={StaticResource HexToBrush}}" />
-                        <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="2" Text="{x:Bind Kind}" VerticalAlignment="Center"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    </Grid>
+                    <cards:CategoryCard CategoryName="{x:Bind Name}"
+                                        KindLabel="{x:Bind Kind}"
+                                        Glyph="{x:Bind Glyph}"
+                                        CategoryBrush="{x:Bind ColorHex, Converter={StaticResource HexToBrush}}"
+                                        Subtitle="Transaction category"
+                                        Margin="0,3" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

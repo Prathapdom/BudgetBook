@@ -32,6 +32,7 @@ folder before launching the app.
 | `Reports/` | Pure finance calculations and chart-ready report models |
 | `Settings/` | Appearance preference models and live theme application |
 | `Themes/` | Semantic color, spacing, typography, and control resources |
+| `Controls/` | Reusable card, finance summary, list-item, empty-state, skeleton, and chart-legend controls |
 | `ViewModels/*.cs` | CommunityToolkit.Mvvm view models, one per page |
 | `Converters.cs` | hex→brush, fraction→width, currency, bool→visibility |
 | `Pages/*.xaml` | Dashboard / Transactions / Accounts / Categories / Settings |
