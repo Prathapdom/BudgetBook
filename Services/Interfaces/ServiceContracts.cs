@@ -28,6 +28,15 @@ public interface ICategoryService
 
 public interface IReportService
 {
+    Task<DashboardSummary> GetSummaryAsync(ReportFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CategoryBreakdown>> GetExpenseBreakdownAsync(ReportFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CashFlowPoint>> GetCashFlowAsync(ReportFilter filter, ReportGranularity granularity = ReportGranularity.Auto, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<IncomeExpensePoint>> GetIncomeExpenseAsync(ReportFilter filter, ReportGranularity granularity = ReportGranularity.Auto, CancellationToken cancellationToken = default);
+    Task<PeriodComparison> GetPeriodComparisonAsync(ReportFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AccountBalanceSummary>> GetAccountBalanceDistributionAsync(ReportFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RecentTransaction>> GetRecentTransactionsAsync(ReportFilter filter, int count = 10, CancellationToken cancellationToken = default);
+
+    // Compatibility methods retained while the Phase 3 dashboard moves to the new filter API.
     Task<MonthSummary> GetMonthSummaryAsync(DateTime month, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CategorySpend>> GetSpendByCategoryAsync(DateTime month, CancellationToken cancellationToken = default);
 }

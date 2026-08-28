@@ -13,6 +13,8 @@ publishing end to end.
 - **Accounts** – CRUD, live balance = opening balance + signed transactions.
 - **Categories** – CRUD with color + kind (expense / income / transfer).
 - **Settings** – light/dark/system theme, CSV export, open data folder.
+- **Reports** – reusable date-range summaries, category breakdowns, cash-flow and
+  income-versus-expense series, period comparisons, account distribution, and recent activity.
 
 Data is a local SQLite file (EF Core) at
 `%LOCALAPPDATA%\BudgetBook\budgetbook.db`, created and seeded on first run.
@@ -38,7 +40,7 @@ folder before launching the app.
 | `Pages/*.xaml` | Dashboard / Transactions / Accounts / Categories / Settings |
 | `MainWindow.xaml` | `NavigationView` shell |
 | `App.xaml.cs` | startup, dependency registration, database initialization, theme root |
-| `BudgetBook.Tests/` | Calculation and legacy-database migration tests |
+| `BudgetBook.Tests/` | Finance, report-query, appearance, and legacy-database migration tests |
 | `Package.appxmanifest` | MSIX identity + visual assets (Partner Center rewrites Identity) |
 
 ## Toolchain (this repo is set up without Visual Studio)
