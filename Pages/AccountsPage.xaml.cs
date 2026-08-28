@@ -10,17 +10,18 @@ namespace BudgetBook.Pages;
 
 public sealed partial class AccountsPage : Page
 {
-    public AccountsViewModel Vm { get; } = new();
+    public AccountsViewModel Vm { get; }
 
     public AccountsPage()
     {
+        Vm = App.GetService<AccountsViewModel>();
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        Vm.Refresh();
+        await Vm.RefreshAsync();
     }
 
     private async void Add_Click(object sender, RoutedEventArgs e)
@@ -77,6 +78,6 @@ public sealed partial class AccountsPage : Page
         draft.OpeningBalance = (decimal)(double.IsNaN(openingBox.Value) ? 0 : openingBox.Value);
         draft.Currency = string.IsNullOrWhiteSpace(currencyBox.Text) ? "USD" : currencyBox.Text.Trim().ToUpperInvariant();
 
-        Vm.Save(draft);
+        await Vm.SaveAsync(draft);
     }
 }

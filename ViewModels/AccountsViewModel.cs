@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using BudgetBook.Data;
-using BudgetBook.Services;
+using BudgetBook.Services.Interfaces;
 
 namespace BudgetBook.ViewModels;
 
@@ -15,36 +15,40 @@ public class AccountRow
 
 public partial class AccountsViewModel : ObservableObject
 {
-    private readonly BudgetService _budget = App.Budget;
+    private readonly IAccountService _accounts;
 
     public ObservableCollection<AccountRow> Items { get; } = new();
 
     [ObservableProperty] private AccountRow? _selected;
 
-    public AccountsViewModel() => Refresh();
+    public AccountsViewModel(IAccountService accounts) => _accounts = accounts;
 
     [RelayCommand]
-    public void Refresh()
+    public async Task RefreshAsync()
     {
         Items.Clear();
-        foreach (var a in _budget.GetAccounts())
-            Items.Add(new AccountRow { Account = a, Balance = _budget.GetAccountBalance(a.Id) });
+        foreach (var account in await _accounts.GetAccountsAsync())
+            Items.Add(new AccountRow
+            {
+                Account = account,
+                Balance = await _accounts.GetAccountBalanceAsync(account.Id),
+            });
     }
 
     public Account NewDraft() => new() { Name = "", OpeningBalance = 0m, Currency = "USD" };
 
-    public void Save(Account a)
+    public async Task SaveAsync(Account account)
     {
-        _budget.SaveAccount(a);
-        Refresh();
+        await _accounts.SaveAccountAsync(account);
+        await RefreshAsync();
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void DeleteSelected()
+    private async Task DeleteSelectedAsync()
     {
         if (Selected is null) return;
-        _budget.DeleteAccount(Selected.Account.Id);
-        Refresh();
+        await _accounts.DeleteAccountAsync(Selected.Account.Id);
+        await RefreshAsync();
     }
 
     private bool HasSelection() => Selected is not null;

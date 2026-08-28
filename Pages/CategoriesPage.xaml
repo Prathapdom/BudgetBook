@@ -8,16 +8,18 @@
     xmlns:data="using:BudgetBook.Data"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16,24,16" RowSpacing="12">
+    <Grid Background="{ThemeResource AppPageBackgroundBrush}"
+          Padding="{ThemeResource AppPagePadding}"
+          RowSpacing="{ThemeResource AppSectionSpacing}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid>
-            <TextBlock Text="Categories" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
-            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                <Button Click="Add_Click" Style="{StaticResource AccentButtonStyle}" Content="Add" />
+            <TextBlock Text="Categories" Style="{StaticResource AppPageTitleTextStyle}" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" HorizontalAlignment="Right">
+                <Button Click="Add_Click" Style="{StaticResource AppAccentButtonStyle}" Content="Add" />
                 <Button Click="Edit_Click" Content="Edit" />
                 <Button Command="{x:Bind Vm.DeleteSelectedCommand}" Content="Delete" />
             </StackPanel>

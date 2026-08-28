@@ -8,7 +8,9 @@
     xmlns:vm="using:BudgetBook.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16,24,16" RowSpacing="16">
+    <Grid Background="{ThemeResource AppPageBackgroundBrush}"
+          Padding="{ThemeResource AppPagePadding}"
+          RowSpacing="{ThemeResource AppSectionSpacing}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -17,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- Month selector -->
-        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" VerticalAlignment="Center">
             <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;"
                     FontFamily="{StaticResource SymbolThemeFontFamily}" />
             <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}"
@@ -28,46 +30,44 @@
         </StackPanel>
 
         <!-- Summary tiles -->
-        <Grid Grid.Row="1" ColumnSpacing="12">
+        <Grid Grid.Row="1" ColumnSpacing="{ThemeResource AppCardSpacing}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Income" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <TextBlock Text="{x:Bind Vm.Income, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Style="{StaticResource TitleTextBlockStyle}" />
+                               Foreground="{ThemeResource AppPositiveAmountBrush}"
+                               Style="{StaticResource AppMetricValueTextStyle}" />
                 </StackPanel>
             </Border>
-            <Border Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Expense" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <TextBlock Text="{x:Bind Vm.Expense, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Style="{StaticResource TitleTextBlockStyle}" />
+                               Foreground="{ThemeResource AppNegativeAmountBrush}"
+                               Style="{StaticResource AppMetricValueTextStyle}" />
                 </StackPanel>
             </Border>
-            <Border Grid.Column="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <Border Grid.Column="2" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Net" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <TextBlock Text="{x:Bind Vm.Net, Mode=OneWay, Converter={StaticResource Currency}}"
-                               Style="{StaticResource TitleTextBlockStyle}" />
+                               Foreground="{ThemeResource AppNeutralAmountBrush}"
+                               Style="{StaticResource AppMetricValueTextStyle}" />
                 </StackPanel>
             </Border>
         </Grid>
 
         <TextBlock Grid.Row="2" Text="Spending by category"
-                   Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,8,0,0" />
+                   Style="{StaticResource AppSectionTitleTextStyle}"
+                   Margin="{ThemeResource AppSectionHeaderMargin}" />
 
         <ScrollViewer Grid.Row="3">
-            <StackPanel Spacing="10">
+            <StackPanel Spacing="{ThemeResource AppControlSpacing}">
                 <ItemsControl ItemsSource="{x:Bind Vm.Spend, Mode=OneWay}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:CategoryBarVm">

@@ -2,42 +2,42 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using BudgetBook.Data;
-using BudgetBook.Services;
+using BudgetBook.Services.Interfaces;
 
 namespace BudgetBook.ViewModels;
 
 public partial class CategoriesViewModel : ObservableObject
 {
-    private readonly BudgetService _budget = App.Budget;
+    private readonly ICategoryService _categories;
 
     public ObservableCollection<Category> Items { get; } = new();
 
     [ObservableProperty] private Category? _selected;
 
-    public CategoriesViewModel() => Refresh();
+    public CategoriesViewModel(ICategoryService categories) => _categories = categories;
 
     [RelayCommand]
-    public void Refresh()
+    public async Task RefreshAsync()
     {
         Items.Clear();
-        foreach (var c in _budget.GetCategories())
+        foreach (var c in await _categories.GetCategoriesAsync())
             Items.Add(c);
     }
 
     public Category NewDraft() => new() { Name = "", ColorHex = "#0078D4", Kind = TransactionType.Expense };
 
-    public void Save(Category c)
+    public async Task SaveAsync(Category category)
     {
-        _budget.SaveCategory(c);
-        Refresh();
+        await _categories.SaveCategoryAsync(category);
+        await RefreshAsync();
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void DeleteSelected()
+    private async Task DeleteSelectedAsync()
     {
         if (Selected is null) return;
-        _budget.DeleteCategory(Selected.Id);
-        Refresh();
+        await _categories.DeleteCategoryAsync(Selected.Id);
+        await RefreshAsync();
     }
 
     private bool HasSelection() => Selected is not null;

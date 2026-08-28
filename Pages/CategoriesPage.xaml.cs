@@ -10,17 +10,18 @@ namespace BudgetBook.Pages;
 
 public sealed partial class CategoriesPage : Page
 {
-    public CategoriesViewModel Vm { get; } = new();
+    public CategoriesViewModel Vm { get; }
 
     public CategoriesPage()
     {
+        Vm = App.GetService<CategoriesViewModel>();
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        Vm.Refresh();
+        await Vm.RefreshAsync();
     }
 
     private async void Add_Click(object sender, RoutedEventArgs e)
@@ -79,6 +80,6 @@ public sealed partial class CategoriesPage : Page
         draft.ColorHex = string.IsNullOrWhiteSpace(colorBox.Text) ? "#888888" : colorBox.Text.Trim();
         draft.Kind = (TransactionType)kindBox.SelectedItem;
 
-        Vm.Save(draft);
+        await Vm.SaveAsync(draft);
     }
 }

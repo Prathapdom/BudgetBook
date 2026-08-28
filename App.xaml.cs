@@ -1,11 +1,11 @@
 ﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using BudgetBook.Data;
 using BudgetBook.Services;
+using BudgetBook.Services.Interfaces;
+using BudgetBook.Settings;
+using BudgetBook.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -19,8 +19,7 @@ public partial class App : Application
 {
     private Window? _window;
 
-    /// <summary>App-wide data access. Simple locator; swap for DI if the app grows.</summary>
-    public static BudgetService Budget { get; } = new();
+    public static IServiceProvider Services { get; private set; } = null!;
 
     /// <summary>Root element of the main window, used for runtime theme switching.</summary>
     public static FrameworkElement? RootElement { get; set; }
@@ -32,6 +31,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        Services = ConfigureServices();
     }
 
     /// <summary>
@@ -40,9 +40,36 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        AppDbContext.Initialize();
+        AppDbContext.Initialize(Services.GetRequiredService<IDbContextFactory<AppDbContext>>());
 
         _window = new MainWindow();
+        if (RootElement is { } root)
+        {
+            GetService<IThemeManager>().Apply(root, GetService<ISettingsService>().Preferences);
+        }
         _window.Activate();
+    }
+
+    public static T GetService<T>() where T : notnull => Services.GetRequiredService<T>();
+
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+        services.AddDbContextFactory<AppDbContext>(options =>
+            options.UseSqlite($"Data Source={AppDbContext.DbPath}"));
+
+        services.AddSingleton<ITransactionService, TransactionService>();
+        services.AddSingleton<IAccountService, AccountService>();
+        services.AddSingleton<ICategoryService, CategoryService>();
+        services.AddSingleton<IReportService, ReportService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IThemeManager, ThemeManager>();
+
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<TransactionsViewModel>();
+        services.AddTransient<AccountsViewModel>();
+        services.AddTransient<CategoriesViewModel>();
+
+        return services.BuildServiceProvider();
     }
 }

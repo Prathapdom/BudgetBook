@@ -16,19 +16,28 @@ publishing end to end.
 
 Data is a local SQLite file (EF Core) at
 `%LOCALAPPDATA%\BudgetBook\budgetbook.db`, created and seeded on first run.
+Appearance preferences are stored beside it in `settings.json`.
+For isolated development or screenshot runs, set `BUDGETBOOK_DATA_DIR` to a temporary
+folder before launching the app.
 
 ## Project layout
 
 | Path | Purpose |
 |---|---|
 | `Data/Models.cs` | `Account`, `Category`, `TransactionRecord`, `TransactionType` |
-| `Data/AppDbContext.cs` | EF Core context, DB path, `Initialize()` seed |
-| `Services/BudgetService.cs` | All data access; each call uses a short-lived context |
+| `Data/AppDbContext.cs` | EF Core context, migration startup, DB path, starter-data seed |
+| `Data/Migrations/` | Tracked EF Core schema migrations |
+| `Services/Interfaces/` | Contracts for transaction, account, category, report, and settings operations |
+| `Services/*.cs` | Async data access; each operation uses a short-lived context |
+| `Reports/` | Pure finance calculations and chart-ready report models |
+| `Settings/` | Appearance preference models and live theme application |
+| `Themes/` | Semantic color, spacing, typography, and control resources |
 | `ViewModels/*.cs` | CommunityToolkit.Mvvm view models, one per page |
 | `Converters.cs` | hex→brush, fraction→width, currency, bool→visibility |
 | `Pages/*.xaml` | Dashboard / Transactions / Accounts / Categories / Settings |
 | `MainWindow.xaml` | `NavigationView` shell |
-| `App.xaml.cs` | startup, DB init, `App.Budget` locator, theme root |
+| `App.xaml.cs` | startup, dependency registration, database initialization, theme root |
+| `BudgetBook.Tests/` | Calculation and legacy-database migration tests |
 | `Package.appxmanifest` | MSIX identity + visual assets (Partner Center rewrites Identity) |
 
 ## Toolchain (this repo is set up without Visual Studio)
@@ -51,6 +60,9 @@ cd F:\Microsoft\Personal
 
 # build
 dotnet build -c Debug
+
+# run tests
+dotnet test .\BudgetBook.Tests\BudgetBook.Tests.csproj -c Debug
 
 # run (self-contained exe; no VS, no runtime install needed)
 & .\bin\Debug\net8.0-windows10.0.26100.0\win-x64\BudgetBook.exe

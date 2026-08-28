@@ -1,12 +1,23 @@
 using System;
 using System.IO;
 using System.Linq;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace BudgetBook.Data;
 
 public class AppDbContext : DbContext
 {
+    public const string InitialMigrationId = "20260828170030_InitialCreate";
+
+    public AppDbContext()
+    {
+    }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<TransactionRecord> Transactions => Set<TransactionRecord>();
@@ -15,9 +26,15 @@ public class AppDbContext : DbContext
     {
         get
         {
-            var dir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "BudgetBook");
+            var dir = Environment.GetEnvironmentVariable("BUDGETBOOK_DATA_DIR");
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "BudgetBook");
+            }
+
+            dir = Path.GetFullPath(dir);
             Directory.CreateDirectory(dir);
             return dir;
         }
@@ -26,7 +43,10 @@ public class AppDbContext : DbContext
     public static string DbPath => Path.Combine(DbFolder, "budgetbook.db");
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlite($"Data Source={DbPath}");
+    {
+        if (!options.IsConfigured)
+            options.UseSqlite($"Data Source={DbPath}");
+    }
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -51,11 +71,15 @@ public class AppDbContext : DbContext
         }
     }
 
-    /// <summary>Create the database on first run and seed starter data.</summary>
-    public static void Initialize()
+    /// <summary>
+    /// Migrates the database and seeds starter data. Databases created by older builds with
+    /// EnsureCreated are first registered as the initial migration so existing data is kept.
+    /// </summary>
+    public static void Initialize(IDbContextFactory<AppDbContext> contextFactory)
     {
-        using var db = new AppDbContext();
-        db.Database.EnsureCreated();
+        using var db = contextFactory.CreateDbContext();
+        RegisterLegacyDatabaseIfNeeded(db);
+        db.Database.Migrate();
 
         if (!db.Accounts.Any())
         {
@@ -76,5 +100,54 @@ public class AppDbContext : DbContext
         }
 
         db.SaveChanges();
+    }
+
+    private static void RegisterLegacyDatabaseIfNeeded(AppDbContext db)
+    {
+        var connection = (SqliteConnection)db.Database.GetDbConnection();
+        var shouldClose = connection.State != System.Data.ConnectionState.Open;
+        if (shouldClose) connection.Open();
+
+        try
+        {
+            using var tables = connection.CreateCommand();
+            tables.CommandText = """
+                SELECT
+                    EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Accounts'),
+                    EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Categories'),
+                    EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Transactions'),
+                    EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '__EFMigrationsHistory');
+                """;
+
+            using var reader = tables.ExecuteReader();
+            if (!reader.Read()) return;
+
+            var hasLegacyTables = reader.GetInt64(0) == 1
+                && reader.GetInt64(1) == 1
+                && reader.GetInt64(2) == 1;
+            var hasMigrationHistory = reader.GetInt64(3) == 1;
+            reader.Close();
+
+            if (!hasLegacyTables || hasMigrationHistory) return;
+
+            using var transaction = connection.BeginTransaction();
+            using var baseline = connection.CreateCommand();
+            baseline.Transaction = transaction;
+            baseline.CommandText = """
+                CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+                    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+                    "ProductVersion" TEXT NOT NULL
+                );
+                INSERT OR IGNORE INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+                VALUES ($migrationId, '8.0.11');
+                """;
+            baseline.Parameters.AddWithValue("$migrationId", InitialMigrationId);
+            baseline.ExecuteNonQuery();
+            transaction.Commit();
+        }
+        finally
+        {
+            if (shouldClose) connection.Close();
+        }
     }
 }

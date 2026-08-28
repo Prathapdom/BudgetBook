@@ -4,37 +4,97 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:BudgetBook.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="24,16,24,16" Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
-            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Settings" />
+    <ScrollViewer Background="{ThemeResource AppPageBackgroundBrush}">
+        <StackPanel Padding="{ThemeResource AppPagePadding}"
+                    Spacing="{ThemeResource AppSectionSpacing}"
+                    MaxWidth="760"
+                    HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource AppPageTitleTextStyle}" Text="Settings" />
 
-            <StackPanel Spacing="4">
-                <TextBlock Text="Appearance" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <ComboBox x:Name="ThemeBox" Header="Theme" SelectionChanged="ThemeBox_SelectionChanged">
-                    <ComboBoxItem Content="Use system setting" Tag="Default" />
-                    <ComboBoxItem Content="Light" Tag="Light" />
-                    <ComboBoxItem Content="Dark" Tag="Dark" />
-                </ComboBox>
-            </StackPanel>
+            <Border Style="{StaticResource AppSettingsGroupStyle}">
+                <StackPanel Spacing="{ThemeResource AppControlSpacing}">
+                    <TextBlock Text="Appearance" Style="{StaticResource AppSectionTitleTextStyle}" />
+                    <Grid ColumnSpacing="{ThemeResource AppCardSpacing}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-            <StackPanel Spacing="4">
-                <TextBlock Text="Data" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <TextBlock Text="{x:Bind DbPath}" TextWrapping="Wrap"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                    <Button Click="Export_Click" Content="Export transactions to CSV" />
-                    <Button Click="OpenFolder_Click" Content="Open data folder" />
+                        <ComboBox x:Name="ThemeBox" Header="Theme"
+                                  SelectionChanged="Appearance_SelectionChanged"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Use system setting" />
+                            <ComboBoxItem Content="Light" />
+                            <ComboBoxItem Content="Dark" />
+                        </ComboBox>
+
+                        <ComboBox x:Name="AccentBox" Grid.Column="1" Header="Accent"
+                                  SelectionChanged="Appearance_SelectionChanged"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Windows accent" />
+                            <ComboBoxItem Content="Ocean" />
+                            <ComboBoxItem Content="Emerald" />
+                            <ComboBoxItem Content="Violet" />
+                            <ComboBoxItem Content="Sunset" />
+                        </ComboBox>
+
+                        <ComboBox x:Name="DensityBox" Grid.Column="2" Header="Density"
+                                  SelectionChanged="Appearance_SelectionChanged"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Comfortable" />
+                            <ComboBoxItem Content="Compact" />
+                        </ComboBox>
+                    </Grid>
+
+                    <Border Style="{StaticResource AppCardStyle}" Margin="0,8,0,0">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="36" Height="36" CornerRadius="18"
+                                    Background="{ThemeResource AppAccentBrush}">
+                                <FontIcon Glyph="&#xE790;"
+                                          Foreground="{ThemeResource AppAccentForegroundBrush}"
+                                          FontSize="16" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Appearance preview" FontWeight="SemiBold" />
+                                <TextBlock Text="Cards, spacing, and accent update immediately."
+                                           Style="{StaticResource AppSecondaryTextStyle}" />
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="Accent action"
+                                    Style="{StaticResource AppAccentButtonStyle}"
+                                    VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
                 </StackPanel>
-            </StackPanel>
+            </Border>
 
-            <StackPanel Spacing="4">
-                <TextBlock Text="About" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <TextBlock Text="BudgetBook — a simple local budget tracker. Version 1.0.0." TextWrapping="Wrap" />
-            </StackPanel>
+            <Border Style="{StaticResource AppSettingsGroupStyle}">
+                <StackPanel Spacing="{ThemeResource AppControlSpacing}">
+                    <TextBlock Text="Data" Style="{StaticResource AppSectionTitleTextStyle}" />
+                    <TextBlock Text="{x:Bind DbPath}" TextWrapping="Wrap"
+                               Style="{StaticResource AppSecondaryTextStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" Margin="0,4,0,0">
+                        <Button Click="Export_Click" Content="Export transactions to CSV" />
+                        <Button Click="OpenFolder_Click" Content="Open data folder" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource AppSettingsGroupStyle}">
+                <StackPanel Spacing="{ThemeResource AppControlSpacing}">
+                    <TextBlock Text="About" Style="{StaticResource AppSectionTitleTextStyle}" />
+                    <TextBlock Text="BudgetBook — a simple local budget tracker. Version 1.0.0."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>

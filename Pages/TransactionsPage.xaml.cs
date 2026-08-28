@@ -10,17 +10,18 @@ namespace BudgetBook.Pages;
 
 public sealed partial class TransactionsPage : Page
 {
-    public TransactionsViewModel Vm { get; } = new();
+    public TransactionsViewModel Vm { get; }
 
     public TransactionsPage()
     {
+        Vm = App.GetService<TransactionsViewModel>();
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        Vm.Refresh();
+        await Vm.RefreshAsync();
     }
 
     private async void Add_Click(object sender, RoutedEventArgs e)
@@ -125,6 +126,6 @@ public sealed partial class TransactionsPage : Page
             return;
         }
 
-        Vm.Save(draft);
+        await Vm.SaveAsync(draft);
     }
 }

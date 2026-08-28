@@ -1,61 +1,58 @@
 using System;
-using System.IO;
-using System.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using BudgetBook.Data;
+using BudgetBook.Services.Interfaces;
+using BudgetBook.Settings;
 
 namespace BudgetBook.Pages;
 
 public sealed partial class SettingsPage : Page
 {
-    public string DbPath => AppDbContext.DbPath;
+    private readonly ISettingsService _settings;
+    private readonly IThemeManager _themeManager;
+    public string DbPath => _settings.DatabasePath;
 
     private bool _loading = true;
 
     public SettingsPage()
     {
+        _settings = App.GetService<ISettingsService>();
+        _themeManager = App.GetService<IThemeManager>();
         InitializeComponent();
 
-        ThemeBox.SelectedIndex = (App.RootElement?.RequestedTheme ?? ElementTheme.Default) switch
+        ThemeBox.SelectedIndex = _settings.Preferences.ThemeMode switch
         {
-            ElementTheme.Light => 1,
-            ElementTheme.Dark => 2,
+            AppThemeMode.Light => 1,
+            AppThemeMode.Dark => 2,
             _ => 0,
         };
+        AccentBox.SelectedIndex = (int)_settings.Preferences.AccentPalette;
+        DensityBox.SelectedIndex = (int)_settings.Preferences.Density;
         _loading = false;
     }
 
-    private void ThemeBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Appearance_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_loading || App.RootElement is null) return;
 
-        App.RootElement.RequestedTheme = ThemeBox.SelectedIndex switch
+        var themeMode = ThemeBox.SelectedIndex switch
         {
-            1 => ElementTheme.Light,
-            2 => ElementTheme.Dark,
-            _ => ElementTheme.Default,
+            1 => AppThemeMode.Light,
+            2 => AppThemeMode.Dark,
+            _ => AppThemeMode.System,
         };
+        var accentPalette = AccentBox.SelectedIndex >= 0
+            ? (AppAccentPalette)AccentBox.SelectedIndex
+            : AppAccentPalette.System;
+        var density = DensityBox.SelectedIndex == 1 ? AppDensity.Compact : AppDensity.Comfortable;
+
+        _settings.SaveAppearance(themeMode, accentPalette, density);
+        _themeManager.Apply(App.RootElement, _settings.Preferences);
     }
 
     private async void Export_Click(object sender, RoutedEventArgs e)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("Date,Type,Amount,Account,Category,Note");
-        foreach (var t in App.Budget.GetTransactions())
-        {
-            sb.AppendLine(string.Join(',',
-                t.Date.ToString("yyyy-MM-dd"),
-                t.Type,
-                t.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                Csv(t.AccountName),
-                Csv(t.CategoryName),
-                Csv(t.Note)));
-        }
-
-        var path = Path.Combine(AppDbContext.DbFolder,
-            $"budgetbook-export-{DateTime.Now:yyyyMMdd-HHmmss}.csv");
-        File.WriteAllText(path, sb.ToString());
+        var path = await _settings.ExportTransactionsCsvAsync();
 
         await new ContentDialog
         {
@@ -69,12 +66,7 @@ public sealed partial class SettingsPage : Page
     private void OpenFolder_Click(object sender, RoutedEventArgs e)
         => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
         {
-            FileName = AppDbContext.DbFolder,
+            FileName = _settings.DataFolder,
             UseShellExecute = true,
         });
-
-    private static string Csv(string s)
-        => s.Contains(',') || s.Contains('"')
-            ? "\"" + s.Replace("\"", "\"\"") + "\""
-            : s;
 }

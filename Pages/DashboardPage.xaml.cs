@@ -6,16 +6,17 @@ namespace BudgetBook.Pages;
 
 public sealed partial class DashboardPage : Page
 {
-    public DashboardViewModel Vm { get; } = new();
+    public DashboardViewModel Vm { get; }
 
     public DashboardPage()
     {
+        Vm = App.GetService<DashboardViewModel>();
         InitializeComponent();
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        Vm.Refresh();
+        await Vm.RefreshAsync();
     }
 }
