@@ -157,6 +157,7 @@ public sealed record RecentTransaction(
     int Id,
     DateTime Date,
     TransactionType Type,
+    TransferDirection TransferDirection,
     decimal Amount,
     string Note,
     int AccountId,
@@ -165,7 +166,7 @@ public sealed record RecentTransaction(
     string CategoryName,
     string CategoryColorHex)
 {
-    public decimal SignedAmount => Type == TransactionType.Income ? Amount : -Amount;
+    public decimal SignedAmount => Type == TransactionType.Income || Type == TransactionType.Transfer && TransferDirection == TransferDirection.Incoming ? Amount : -Amount;
     public string DateLabel => Date.ToString("MMM dd");
 }
 

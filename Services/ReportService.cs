@@ -92,7 +92,7 @@ public sealed class ReportService(IDbContextFactory<AppDbContext> contextFactory
             transactionQuery = transactionQuery.Where(transaction => transaction.CategoryId == categoryId);
 
         var movements = await transactionQuery
-            .Select(transaction => new { transaction.AccountId, transaction.Type, transaction.Amount })
+            .Select(transaction => new { transaction.AccountId, transaction.Type, transaction.TransferDirection, transaction.Amount })
             .ToListAsync(cancellationToken);
 
         var balances = accounts.Select(account => new
@@ -100,7 +100,7 @@ public sealed class ReportService(IDbContextFactory<AppDbContext> contextFactory
             Account = account,
             Balance = account.OpeningBalance + movements
                 .Where(transaction => transaction.AccountId == account.Id)
-                .Sum(transaction => transaction.Type == TransactionType.Income ? transaction.Amount : -transaction.Amount),
+                .Sum(transaction => transaction.Type == TransactionType.Income || transaction.Type == TransactionType.Transfer && transaction.TransferDirection == TransferDirection.Incoming ? transaction.Amount : -transaction.Amount),
         }).ToList();
 
         var positiveTotals = balances
@@ -140,6 +140,7 @@ public sealed class ReportService(IDbContextFactory<AppDbContext> contextFactory
                 transaction.Id,
                 transaction.Date,
                 transaction.Type,
+                transaction.TransferDirection,
                 transaction.Amount,
                 transaction.Note,
                 transaction.AccountId,

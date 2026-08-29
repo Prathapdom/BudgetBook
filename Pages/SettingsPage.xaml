@@ -27,7 +27,10 @@
 
         <cards:AppCard><StackPanel Spacing="12"><TextBlock Text="Data and portability" Style="{StaticResource AppSectionTitleTextStyle}" /><TextBlock Text="{x:Bind DbPath}" TextWrapping="Wrap" Style="{StaticResource AppSecondaryTextStyle}" />
             <InfoBar x:Name="StatusBar" IsOpen="False" IsClosable="True" Severity="Success" />
-            <StackPanel Orientation="Horizontal" Spacing="8"><Button Click="ExportCsv_Click" Content="Export CSV…" /><Button Click="Backup_Click" Content="Export JSON backup…" /><Button Click="Restore_Click" Content="Restore backup…" /><Button Click="OpenFolder_Click" Content="Open data folder" /></StackPanel>
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="8"><Button Click="ExportCsv_Click" Content="Export CSV…" /><Button Click="ImportCsv_Click" Content="Import CSV…" /><Button Click="ExportPdf_Click" Content="Export monthly PDF…" /><Button Click="Rates_Click" Content="Exchange rates…" /></StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8"><Button Click="Backup_Click" Content="Export portable ZIP backup…" /><Button Click="ExportJson_Click" Content="Export JSON…" /><Button Click="Restore_Click" Content="Restore backup…" /><Button Click="OpenFolder_Click" Content="Open data folder" /></StackPanel>
+            </StackPanel>
         </StackPanel></cards:AppCard>
         <cards:AppCard><StackPanel Spacing="8"><TextBlock Text="About" Style="{StaticResource AppSectionTitleTextStyle}" /><TextBlock Text="BudgetBook — a private, local-first budget tracker. Version 1.0.0." /></StackPanel></cards:AppCard>
     </StackPanel></ScrollViewer>

@@ -61,7 +61,7 @@ public sealed class DatabaseMigrationTests
         Assert.IsTrue(created.Accounts.Any());
         Assert.IsTrue(created.Categories.Any());
         CollectionAssert.AreEqual(
-            new[] { AppDbContext.InitialMigrationId, AppDbContext.BudgetsMigrationId },
+            new[] { AppDbContext.InitialMigrationId, AppDbContext.BudgetsMigrationId, AppDbContext.AdvancedFeaturesMigrationId },
             created.Database.GetAppliedMigrations().ToArray());
     }
 

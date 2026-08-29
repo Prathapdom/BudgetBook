@@ -88,6 +88,9 @@ public sealed partial class MainWindow : Window
                 case "budgets":
                     NavFrame.Navigate(typeof(BudgetsPage));
                     break;
+                case "recurring":
+                    NavFrame.Navigate(typeof(RecurringPage));
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown navigation item tag: {item.Tag}");
             }

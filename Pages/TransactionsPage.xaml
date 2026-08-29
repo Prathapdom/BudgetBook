@@ -35,6 +35,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="6"><FontIcon Glyph="&#xE710;" FontSize="14" /><TextBlock Text="Add" /></StackPanel>
                 </Button>
                 <Button Click="Edit_Click" Content="Edit" />
+                <Button Click="Attach_Click" Content="Attach receipt…" />
                 <Button Click="Delete_Click" Content="Delete" />
             </StackPanel>
         </Grid>
@@ -92,6 +93,7 @@
                     <ComboBox x:Name="PaneAccountBox" Header="Account" ItemsSource="{x:Bind Vm.Accounts}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
                     <ComboBox x:Name="PaneCategoryBox" Header="Category" ItemsSource="{x:Bind Vm.Categories}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
                     <TextBox x:Name="PaneNoteBox" Header="Note" />
+                    <TextBox x:Name="PaneTagsBox" Header="Tags" PlaceholderText="travel, reimbursable" />
                     <Button Content="Save changes" Style="{StaticResource AppAccentButtonStyle}" Click="SavePane_Click" HorizontalAlignment="Stretch" />
                 </StackPanel></ScrollViewer>
             </Border>

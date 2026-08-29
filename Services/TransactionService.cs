@@ -27,8 +27,35 @@ public sealed class TransactionService(IDbContextFactory<AppDbContext> contextFa
     public async Task SaveTransactionAsync(TransactionRecord transaction, CancellationToken cancellationToken = default)
     {
         await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
+        transaction.Account = null;
+        transaction.Category = null;
         if (transaction.Id == 0) db.Transactions.Add(transaction);
+        else if (!string.IsNullOrWhiteSpace(transaction.TransferGroupId))
+        {
+            var linked = await db.Transactions.Where(item => item.TransferGroupId == transaction.TransferGroupId).ToListAsync(cancellationToken);
+            foreach (var item in linked)
+            {
+                item.Amount = transaction.Amount;
+                item.Date = transaction.Date;
+                item.Note = transaction.Note;
+                item.Tags = transaction.Tags;
+            }
+        }
         else db.Transactions.Update(transaction);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task SaveTransferAsync(int sourceAccountId, int destinationAccountId, decimal amount, DateTime date, string note, string tags = "", CancellationToken cancellationToken = default)
+    {
+        if (sourceAccountId == destinationAccountId) throw new InvalidOperationException("Source and destination accounts must be different.");
+        if (amount <= 0m) throw new ArgumentOutOfRangeException(nameof(amount), "Transfer amount must be greater than zero.");
+        await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
+        var accountCount = await db.Accounts.CountAsync(account => account.Id == sourceAccountId || account.Id == destinationAccountId, cancellationToken);
+        if (accountCount != 2) throw new InvalidOperationException("Both transfer accounts must exist.");
+        var groupId = Guid.NewGuid().ToString("N");
+        db.Transactions.AddRange(
+            new TransactionRecord { Type = TransactionType.Transfer, TransferDirection = TransferDirection.Outgoing, TransferGroupId = groupId, AccountId = sourceAccountId, Amount = amount, Date = date.Date, Note = note, Tags = tags },
+            new TransactionRecord { Type = TransactionType.Transfer, TransferDirection = TransferDirection.Incoming, TransferGroupId = groupId, AccountId = destinationAccountId, Amount = amount, Date = date.Date, Note = note, Tags = tags });
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -37,7 +64,9 @@ public sealed class TransactionService(IDbContextFactory<AppDbContext> contextFa
         await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
         var transaction = await db.Transactions.FindAsync([id], cancellationToken);
         if (transaction is null) return;
-        db.Transactions.Remove(transaction);
+        if (!string.IsNullOrWhiteSpace(transaction.TransferGroupId))
+            db.Transactions.RemoveRange(await db.Transactions.Where(item => item.TransferGroupId == transaction.TransferGroupId).ToListAsync(cancellationToken));
+        else db.Transactions.Remove(transaction);
         await db.SaveChangesAsync(cancellationToken);
     }
 }

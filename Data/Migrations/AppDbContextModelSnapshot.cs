@@ -116,6 +116,16 @@ namespace BudgetBook.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TransferGroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TransferDirection")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
@@ -125,7 +135,49 @@ namespace BudgetBook.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("TransferGroupId");
+
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("BudgetBook.Data.ExchangeRateSnapshot", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                    b.Property<string>("BaseCurrency").IsRequired().HasColumnType("TEXT");
+                    b.Property<DateTime>("CapturedAt").HasColumnType("TEXT");
+                    b.Property<string>("QuoteCurrency").IsRequired().HasColumnType("TEXT");
+                    b.Property<decimal>("Rate").HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("BaseCurrency", "QuoteCurrency", "CapturedAt").IsUnique();
+                    b.ToTable("ExchangeRates");
+                });
+
+            modelBuilder.Entity("BudgetBook.Data.RecurringTransaction", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                    b.Property<int>("AccountId").HasColumnType("INTEGER");
+                    b.Property<decimal>("Amount").HasColumnType("TEXT");
+                    b.Property<int?>("CategoryId").HasColumnType("INTEGER");
+                    b.Property<int>("Frequency").HasColumnType("INTEGER");
+                    b.Property<int>("Interval").HasColumnType("INTEGER");
+                    b.Property<bool>("IsActive").HasColumnType("INTEGER");
+                    b.Property<DateTime>("NextOccurrence").HasColumnType("TEXT");
+                    b.Property<string>("Note").IsRequired().HasColumnType("TEXT");
+                    b.Property<string>("Tags").IsRequired().HasColumnType("TEXT");
+                    b.Property<int>("Type").HasColumnType("INTEGER");
+                    b.HasKey("Id"); b.HasIndex("AccountId"); b.HasIndex("CategoryId");
+                    b.ToTable("RecurringTransactions");
+                });
+
+            modelBuilder.Entity("BudgetBook.Data.TransactionAttachment", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
+                    b.Property<DateTime>("AddedAt").HasColumnType("TEXT");
+                    b.Property<string>("FileName").IsRequired().HasColumnType("TEXT");
+                    b.Property<string>("StoredPath").IsRequired().HasColumnType("TEXT");
+                    b.Property<int>("TransactionRecordId").HasColumnType("INTEGER");
+                    b.HasKey("Id"); b.HasIndex("TransactionRecordId");
+                    b.ToTable("TransactionAttachments");
                 });
 
             modelBuilder.Entity("BudgetBook.Data.Budget", b =>
@@ -167,6 +219,19 @@ namespace BudgetBook.Data.Migrations
                     b.Navigation("Budgets");
 
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("BudgetBook.Data.RecurringTransaction", b =>
+                {
+                    b.HasOne("BudgetBook.Data.Account", "Account").WithMany().HasForeignKey("AccountId").OnDelete(DeleteBehavior.Cascade).IsRequired();
+                    b.HasOne("BudgetBook.Data.Category", "Category").WithMany().HasForeignKey("CategoryId").OnDelete(DeleteBehavior.SetNull);
+                    b.Navigation("Account"); b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("BudgetBook.Data.TransactionAttachment", b =>
+                {
+                    b.HasOne("BudgetBook.Data.TransactionRecord", "Transaction").WithMany().HasForeignKey("TransactionRecordId").OnDelete(DeleteBehavior.Cascade).IsRequired();
+                    b.Navigation("Transaction");
                 });
 #pragma warning restore 612, 618
         }

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
 {
     public const string InitialMigrationId = "20260828170030_InitialCreate";
     public const string BudgetsMigrationId = "20260829143000_AddBudgets";
+    public const string AdvancedFeaturesMigrationId = "20260829170000_AddAdvancedFinanceFeatures";
 
     public AppDbContext()
     {
@@ -23,6 +24,9 @@ public class AppDbContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<TransactionRecord> Transactions => Set<TransactionRecord>();
     public DbSet<Budget> Budgets => Set<Budget>();
+    public DbSet<RecurringTransaction> RecurringTransactions => Set<RecurringTransaction>();
+    public DbSet<ExchangeRateSnapshot> ExchangeRates => Set<ExchangeRateSnapshot>();
+    public DbSet<TransactionAttachment> TransactionAttachments => Set<TransactionAttachment>();
 
     public static string DbFolder
     {
@@ -73,6 +77,29 @@ public class AppDbContext : DbContext
         b.Entity<Budget>()
             .HasIndex(budget => budget.CategoryId)
             .IsUnique();
+
+        b.Entity<TransactionRecord>().HasIndex(transaction => transaction.TransferGroupId);
+
+        b.Entity<RecurringTransaction>()
+            .HasOne(recurring => recurring.Account)
+            .WithMany()
+            .HasForeignKey(recurring => recurring.AccountId)
+            .OnDelete(DeleteBehavior.Cascade);
+        b.Entity<RecurringTransaction>()
+            .HasOne(recurring => recurring.Category)
+            .WithMany()
+            .HasForeignKey(recurring => recurring.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        b.Entity<ExchangeRateSnapshot>()
+            .HasIndex(rate => new { rate.BaseCurrency, rate.QuoteCurrency, rate.CapturedAt })
+            .IsUnique();
+
+        b.Entity<TransactionAttachment>()
+            .HasOne(attachment => attachment.Transaction)
+            .WithMany()
+            .HasForeignKey(attachment => attachment.TransactionRecordId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // SQLite has no decimal type; store as TEXT with invariant culture ordering.
         foreach (var p in b.Model.GetEntityTypes()
@@ -129,6 +156,10 @@ public class AppDbContext : DbContext
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Categories'),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Transactions'),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Budgets'),
+                    (EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'RecurringTransactions')
+                     AND EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'ExchangeRates')
+                     AND EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'TransactionAttachments')
+                     AND EXISTS(SELECT 1 FROM pragma_table_info('Transactions') WHERE name = 'Tags')),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '__EFMigrationsHistory');
                 """;
 
@@ -139,7 +170,8 @@ public class AppDbContext : DbContext
                 && reader.GetInt64(1) == 1
                 && reader.GetInt64(2) == 1;
             var hasBudgetsTable = reader.GetInt64(3) == 1;
-            var hasMigrationHistory = reader.GetInt64(4) == 1;
+            var hasAdvancedTables = reader.GetInt64(4) == 1;
+            var hasMigrationHistory = reader.GetInt64(5) == 1;
             reader.Close();
 
             if (!hasLegacyTables || hasMigrationHistory) return;
@@ -165,6 +197,16 @@ public class AppDbContext : DbContext
                     """;
                 baseline.Parameters.Clear();
                 baseline.Parameters.AddWithValue("$budgetsMigrationId", BudgetsMigrationId);
+                baseline.ExecuteNonQuery();
+            }
+            if (hasAdvancedTables)
+            {
+                baseline.CommandText = """
+                    INSERT OR IGNORE INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+                    VALUES ($advancedMigrationId, '8.0.11');
+                    """;
+                baseline.Parameters.Clear();
+                baseline.Parameters.AddWithValue("$advancedMigrationId", AdvancedFeaturesMigrationId);
                 baseline.ExecuteNonQuery();
             }
             transaction.Commit();

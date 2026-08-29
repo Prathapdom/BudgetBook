@@ -63,6 +63,9 @@
                 <NavigationViewItem Content="Budgets" Tag="budgets">
                     <NavigationViewItem.Icon><FontIcon Glyph="&#xE9D2;" /></NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Recurring" Tag="recurring">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE895;" /></NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="NavFrame" />
         </NavigationView>

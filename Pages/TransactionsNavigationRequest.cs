@@ -1,3 +1,5 @@
+using BudgetBook.Data;
+
 namespace BudgetBook.Pages;
 
 public sealed record TransactionsNavigationRequest(
@@ -6,4 +8,5 @@ public sealed record TransactionsNavigationRequest(
     int? CategoryId = null,
     string? FilterLabel = null,
     bool UncategorizedOnly = false,
-    bool OpenNewTransaction = false);
+    bool OpenNewTransaction = false,
+    TransactionRecord? Draft = null);

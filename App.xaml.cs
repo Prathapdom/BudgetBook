@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
+using Microsoft.Windows.AppLifecycle;
+using Windows.ApplicationModel.Activation;
+using BudgetBook.Pages;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -54,6 +57,24 @@ public partial class App : Application
             GetService<IThemeManager>().Apply(root, GetService<ISettingsService>().Preferences);
         }
         _window.Activate();
+        TryHandleProtocolActivation(AppInstance.GetCurrent().GetActivatedEventArgs());
+    }
+
+    private static void TryHandleProtocolActivation(AppActivationArguments arguments)
+    {
+        if (arguments.Kind != ExtendedActivationKind.Protocol || arguments.Data is not ProtocolActivatedEventArgs protocol) return;
+        var uri = protocol.Uri;
+        if (!uri.Host.Equals("add", StringComparison.OrdinalIgnoreCase) && !uri.AbsolutePath.Trim('/').Equals("add", StringComparison.OrdinalIgnoreCase)) return;
+        var values = uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Select(part => part.Split('=', 2)).ToDictionary(part => Uri.UnescapeDataString(part[0]), part => part.Length > 1 ? Uri.UnescapeDataString(part[1]) : "", StringComparer.OrdinalIgnoreCase);
+        _ = decimal.TryParse(values.GetValueOrDefault("amount"), out var amount);
+        _ = int.TryParse(values.GetValueOrDefault("accountId"), out var accountId);
+        _ = int.TryParse(values.GetValueOrDefault("categoryId"), out var categoryId);
+        _ = Enum.TryParse<TransactionType>(values.GetValueOrDefault("type"), true, out var type);
+        _ = DateTime.TryParse(values.GetValueOrDefault("date"), out var date);
+        var draft = new TransactionRecord { Amount = Math.Abs(amount), AccountId = accountId, CategoryId = categoryId == 0 ? null : categoryId,
+            Type = type, Date = date == default ? DateTime.Today : date.Date, Note = values.GetValueOrDefault("note") ?? "", Tags = values.GetValueOrDefault("tags") ?? "" };
+        MainWindow.Instance?.NavigateToTransactions(new TransactionsNavigationRequest(draft.Date, OpenNewTransaction: true, Draft: draft));
     }
 
     public static T GetService<T>() where T : notnull => Services.GetRequiredService<T>();
@@ -68,6 +89,11 @@ public partial class App : Application
         services.AddSingleton<IAccountService, AccountService>();
         services.AddSingleton<ICategoryService, CategoryService>();
         services.AddSingleton<IBudgetService, BudgetService>();
+        services.AddSingleton<IRecurringTransactionService, RecurringTransactionService>();
+        services.AddSingleton<IAttachmentService, AttachmentService>();
+        services.AddSingleton<IExchangeRateService, ExchangeRateService>();
+        services.AddSingleton<ICsvImportService, CsvImportService>();
+        services.AddSingleton<IPdfReportService, PdfReportService>();
         services.AddSingleton<IReportService, ReportService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IThemeManager, ThemeManager>();
@@ -78,6 +104,7 @@ public partial class App : Application
         services.AddTransient<AccountDetailViewModel>();
         services.AddTransient<CategoriesViewModel>();
         services.AddTransient<BudgetsViewModel>();
+        services.AddTransient<RecurringViewModel>();
 
         return services.BuildServiceProvider();
     }

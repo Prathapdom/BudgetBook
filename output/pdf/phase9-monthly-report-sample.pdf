@@ -1,0 +1,60 @@
+%PDF-1.4
+%????
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 545 >>
+stream
+BT
+/F1 9 Tf
+45 748 Td
+12 TL
+(BudgetBook - August 2026) Tj
+T*
+(Monthly finance report) Tj
+T*
+() Tj
+T*
+(Income: 0.00    Expenses: 84.25    Net: -84.25) Tj
+T*
+(Budgeted: 400.00    Budget spent: 84.25    Projected: 90.06) Tj
+T*
+() Tj
+T*
+(Date        Category            Account                 Amount  Note) Tj
+T*
+(--------------------------------------------------------------------------------------------) Tj
+T*
+(2026-08-12  Groceries           Cash                    -84.25  Weekly groceries) Tj
+T*
+ET
+BT
+/F1 8 Tf
+270 28 Td
+(Page 1 of 1) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000189 00000 n 
+0000000315 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+910
+%%EOF

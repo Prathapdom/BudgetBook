@@ -8,7 +8,44 @@ public interface ITransactionService
 {
     Task<IReadOnlyList<TransactionRecord>> GetTransactionsAsync(DateTime? month = null, int? accountId = null, CancellationToken cancellationToken = default);
     Task SaveTransactionAsync(TransactionRecord transaction, CancellationToken cancellationToken = default);
+    Task SaveTransferAsync(int sourceAccountId, int destinationAccountId, decimal amount, DateTime date, string note, string tags = "", CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
     Task DeleteTransactionAsync(int id, CancellationToken cancellationToken = default);
+}
+
+public interface IRecurringTransactionService
+{
+    Task<IReadOnlyList<RecurringTransaction>> GetRulesAsync(CancellationToken cancellationToken = default);
+    Task SaveRuleAsync(RecurringTransaction rule, CancellationToken cancellationToken = default);
+    Task DeleteRuleAsync(int id, CancellationToken cancellationToken = default);
+    Task<int> GenerateDueAsync(DateTime throughDate, CancellationToken cancellationToken = default);
+}
+
+public interface IAttachmentService
+{
+    Task<IReadOnlyList<TransactionAttachment>> GetAttachmentsAsync(int transactionId, CancellationToken cancellationToken = default);
+    Task<TransactionAttachment> AddAttachmentAsync(int transactionId, string sourcePath, CancellationToken cancellationToken = default);
+    Task DeleteAttachmentAsync(int id, CancellationToken cancellationToken = default);
+}
+
+public interface IExchangeRateService
+{
+    Task<IReadOnlyList<ExchangeRateSnapshot>> GetRatesAsync(CancellationToken cancellationToken = default);
+    Task SaveRateAsync(ExchangeRateSnapshot rate, CancellationToken cancellationToken = default);
+    Task<decimal?> ConvertAsync(decimal amount, string fromCurrency, string toCurrency, DateTime asOf, CancellationToken cancellationToken = default);
+}
+
+public sealed record CsvImportPreview(IReadOnlyList<TransactionRecord> Transactions, int DuplicateCount, IReadOnlyList<string> Errors);
+
+public interface ICsvImportService
+{
+    Task<CsvImportPreview> PreviewAsync(string sourcePath, CancellationToken cancellationToken = default);
+    Task<int> ImportAsync(CsvImportPreview preview, CancellationToken cancellationToken = default);
+}
+
+public interface IPdfReportService
+{
+    Task<string> ExportMonthlyReportAsync(string destinationPath, DateTime month, CancellationToken cancellationToken = default);
 }
 
 public interface IAccountService
@@ -59,4 +96,6 @@ public interface ISettingsService
     Task<string> ExportTransactionsCsvAsync(string destinationPath, CancellationToken cancellationToken = default);
     Task<string> ExportBackupJsonAsync(string destinationPath, CancellationToken cancellationToken = default);
     Task RestoreBackupJsonAsync(string sourcePath, CancellationToken cancellationToken = default);
+    Task<string> ExportBackupZipAsync(string destinationPath, CancellationToken cancellationToken = default);
+    Task RestoreBackupZipAsync(string sourcePath, CancellationToken cancellationToken = default);
 }

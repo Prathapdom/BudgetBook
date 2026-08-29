@@ -102,7 +102,8 @@ public partial class TransactionsViewModel : ObservableObject
             (TypeFilter is null || transaction.Type == TypeFilter) &&
             (search.Length == 0 || transaction.Note.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
              transaction.AccountName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-             transaction.CategoryName.Contains(search, StringComparison.CurrentCultureIgnoreCase)))
+             transaction.CategoryName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+             transaction.Tags.Contains(search, StringComparison.CurrentCultureIgnoreCase)))
             .OrderByDescending(transaction => transaction.Date).ThenByDescending(transaction => transaction.Id).ToList();
 
         Items.Clear();
