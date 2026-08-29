@@ -25,10 +25,14 @@ public enum AppDensity
 public sealed record AppPreferences(
     AppThemeMode ThemeMode,
     AppAccentPalette AccentPalette,
-    AppDensity Density)
+    AppDensity Density,
+    string CurrencyCode = "USD",
+    string LocaleName = "en-US")
 {
     public static AppPreferences Default { get; } = new(
         AppThemeMode.System,
         AppAccentPalette.System,
-        AppDensity.Comfortable);
+        AppDensity.Comfortable,
+        "USD",
+        "en-US");
 }

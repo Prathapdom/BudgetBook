@@ -6,6 +6,8 @@ using BudgetBook.Settings;
 using BudgetBook.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,6 +32,10 @@ public partial class App : Application
     /// </summary>
     public App()
     {
+        // SkiaSharp's WinUI GPU surface can fail on some Windows/driver combinations.
+        // Charts are small and static enough that the more reliable CPU renderer is preferable.
+        LiveCharts.Configure(configuration => configuration
+            .HasRenderingSettings(settings => settings.UseGPU = false));
         InitializeComponent();
         Services = ConfigureServices();
     }
@@ -61,6 +67,7 @@ public partial class App : Application
         services.AddSingleton<ITransactionService, TransactionService>();
         services.AddSingleton<IAccountService, AccountService>();
         services.AddSingleton<ICategoryService, CategoryService>();
+        services.AddSingleton<IBudgetService, BudgetService>();
         services.AddSingleton<IReportService, ReportService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IThemeManager, ThemeManager>();
@@ -68,7 +75,9 @@ public partial class App : Application
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<TransactionsViewModel>();
         services.AddTransient<AccountsViewModel>();
+        services.AddTransient<AccountDetailViewModel>();
         services.AddTransient<CategoriesViewModel>();
+        services.AddTransient<BudgetsViewModel>();
 
         return services.BuildServiceProvider();
     }

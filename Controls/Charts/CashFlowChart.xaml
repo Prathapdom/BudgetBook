@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="BudgetBook.Controls.Charts.CashFlowChart"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI">
+    <Grid>
+        <StackPanel x:Name="ContentRoot" Spacing="8">
+            <lvc:CartesianChart x:Name="Chart" Height="260" LegendPosition="Hidden"
+                                Background="{ThemeResource AppChartBackgroundBrush}"
+                                TooltipPosition="Top" AutomationProperties.Name="Cash flow trend chart" />
+            <Expander Header="View cash flow data" HorizontalAlignment="Stretch">
+                <ItemsControl x:Name="SummaryList" AutomationProperties.Name="Cash flow data table">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnSpacing="12" Margin="4,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Label}" />
+                                <TextBlock Grid.Column="1" Text="{Binding PrimaryValue}" />
+                                <TextBlock Grid.Column="2" Text="{Binding SecondaryValue}"
+                                           Style="{StaticResource AppSecondaryTextStyle}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Expander>
+        </StackPanel>
+        <StackPanel x:Name="EmptyRoot" Visibility="Collapsed" HorizontalAlignment="Center"
+                    VerticalAlignment="Center" Spacing="6">
+            <FontIcon Glyph="&#xE9D9;" FontSize="26" HorizontalAlignment="Center" />
+            <TextBlock Text="No cash flow yet" Style="{StaticResource AppSectionTitleTextStyle}" />
+            <TextBlock Text="Income and expenses will create a trend." Style="{StaticResource AppSecondaryTextStyle}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -60,7 +60,9 @@ public sealed class DatabaseMigrationTests
         using var created = factory.CreateDbContext();
         Assert.IsTrue(created.Accounts.Any());
         Assert.IsTrue(created.Categories.Any());
-        Assert.AreEqual(AppDbContext.InitialMigrationId, created.Database.GetAppliedMigrations().Single());
+        CollectionAssert.AreEqual(
+            new[] { AppDbContext.InitialMigrationId, AppDbContext.BudgetsMigrationId },
+            created.Database.GetAppliedMigrations().ToArray());
     }
 
     private sealed class TestContextFactory(DbContextOptions<AppDbContext> options)

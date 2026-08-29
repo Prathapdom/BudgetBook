@@ -26,6 +26,14 @@ public interface ICategoryService
     Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default);
 }
 
+public interface IBudgetService
+{
+    Task<IReadOnlyList<Budget>> GetBudgetsAsync(CancellationToken cancellationToken = default);
+    Task<BudgetVsActualReport> GetBudgetReportAsync(ReportFilter filter, DateTime? asOfDate = null, CancellationToken cancellationToken = default);
+    Task SaveBudgetAsync(Budget budget, CancellationToken cancellationToken = default);
+    Task DeleteBudgetAsync(int id, CancellationToken cancellationToken = default);
+}
+
 public interface IReportService
 {
     Task<DashboardSummary> GetSummaryAsync(ReportFilter filter, CancellationToken cancellationToken = default);
@@ -47,5 +55,8 @@ public interface ISettingsService
     string DataFolder { get; }
     AppPreferences Preferences { get; }
     void SaveAppearance(AppThemeMode themeMode, AppAccentPalette accentPalette, AppDensity density);
-    Task<string> ExportTransactionsCsvAsync(CancellationToken cancellationToken = default);
+    void SaveRegional(string currencyCode, string localeName);
+    Task<string> ExportTransactionsCsvAsync(string destinationPath, CancellationToken cancellationToken = default);
+    Task<string> ExportBackupJsonAsync(string destinationPath, CancellationToken cancellationToken = default);
+    Task RestoreBackupJsonAsync(string sourcePath, CancellationToken cancellationToken = default);
 }

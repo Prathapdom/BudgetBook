@@ -32,9 +32,32 @@ public sealed partial class AccountsPage : Page
         if (Vm.Selected is { } row) await ShowEditorAsync(Clone(row.Account), isNew: false);
     }
 
-    private async void List_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    private void Details_Click(object sender, RoutedEventArgs e)
     {
-        if (Vm.Selected is { } row) await ShowEditorAsync(Clone(row.Account), isNew: false);
+        if (Vm.Selected is { } row) MainWindow.Instance?.NavigateToAccountDetails(row);
+    }
+
+    private async void Delete_Click(object sender, RoutedEventArgs e)
+    {
+        if (Vm.Selected is not { } row) return;
+        var warning = row.TransactionCount == 0
+            ? "This account has no transactions."
+            : $"This will also permanently delete {row.TransactionCount} transaction{(row.TransactionCount == 1 ? "" : "s")} linked to this account.";
+        var result = await new ContentDialog
+        {
+            Title = $"Delete {row.Account.Name}?",
+            Content = warning,
+            PrimaryButtonText = "Delete account",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot,
+        }.ShowAsync();
+        if (result == ContentDialogResult.Primary) await Vm.DeleteAsync(row);
+    }
+
+    private void List_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        if (Vm.Selected is { } row) MainWindow.Instance?.NavigateToAccountDetails(row);
     }
 
     private static Account Clone(Account a) => new()

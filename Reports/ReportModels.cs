@@ -100,6 +100,45 @@ public sealed record AccountBalanceSummary(
     decimal Balance,
     decimal PercentageOfCurrencyTotal);
 
+public enum BudgetHealth
+{
+    Normal,
+    Warning,
+    Critical,
+    Exceeded,
+}
+
+public sealed record BudgetProgress(
+    int BudgetId,
+    int CategoryId,
+    string CategoryName,
+    string CategoryColorHex,
+    decimal BaseLimit,
+    decimal EffectiveLimit,
+    decimal Spent,
+    decimal ProjectedSpending,
+    BudgetPeriodType PeriodType,
+    bool RolloverEnabled)
+{
+    public decimal Remaining => EffectiveLimit - Spent;
+    public decimal Progress => EffectiveLimit <= 0m ? 0m : Spent / EffectiveLimit;
+    public BudgetHealth Health => Progress >= 1m ? BudgetHealth.Exceeded
+        : Progress >= 0.90m ? BudgetHealth.Critical
+        : Progress >= 0.75m ? BudgetHealth.Warning
+        : BudgetHealth.Normal;
+}
+
+public sealed record BudgetVsActualReport(
+    DateTime StartDate,
+    DateTime EndDateExclusive,
+    IReadOnlyList<BudgetProgress> Items)
+{
+    public decimal TotalBudget => Items.Sum(item => item.EffectiveLimit);
+    public decimal TotalSpent => Items.Sum(item => item.Spent);
+    public decimal TotalRemaining => TotalBudget - TotalSpent;
+    public decimal TotalProjected => Items.Sum(item => item.ProjectedSpending);
+}
+
 public sealed record PeriodComparison(
     DashboardSummary Current,
     DashboardSummary Previous)
@@ -127,6 +166,7 @@ public sealed record RecentTransaction(
     string CategoryColorHex)
 {
     public decimal SignedAmount => Type == TransactionType.Income ? Amount : -Amount;
+    public string DateLabel => Date.ToString("MMM dd");
 }
 
 /// <summary>Minimal transaction projection used by pure report aggregation.</summary>

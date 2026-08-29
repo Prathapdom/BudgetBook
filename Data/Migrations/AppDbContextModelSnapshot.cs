@@ -65,6 +65,35 @@ namespace BudgetBook.Data.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("BudgetBook.Data.Budget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PeriodType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("RolloverEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("Budgets");
+                });
+
             modelBuilder.Entity("BudgetBook.Data.TransactionRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -99,6 +128,17 @@ namespace BudgetBook.Data.Migrations
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("BudgetBook.Data.Budget", b =>
+                {
+                    b.HasOne("BudgetBook.Data.Category", "Category")
+                        .WithMany("Budgets")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("BudgetBook.Data.TransactionRecord", b =>
                 {
                     b.HasOne("BudgetBook.Data.Account", "Account")
@@ -124,6 +164,8 @@ namespace BudgetBook.Data.Migrations
 
             modelBuilder.Entity("BudgetBook.Data.Category", b =>
                 {
+                    b.Navigation("Budgets");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618

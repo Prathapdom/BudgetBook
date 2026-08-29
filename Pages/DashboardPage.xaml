@@ -1,80 +1,307 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="BudgetBook.Pages.DashboardPage"
+    x:Name="DashboardPageRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cards="using:BudgetBook.Controls.Cards"
+    xmlns:charts="using:BudgetBook.Controls.Charts"
     xmlns:common="using:BudgetBook.Controls.Common"
-    xmlns:vm="using:BudgetBook.ViewModels"
+    xmlns:reports="using:BudgetBook.Reports"
+    xmlns:viewModels="using:BudgetBook.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource AppPageBackgroundBrush}"
-          Padding="{ThemeResource AppPagePadding}"
-          RowSpacing="{ThemeResource AppSectionSpacing}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid x:Name="ResponsiveRoot" Background="{ThemeResource AppPageBackgroundBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WidthStates">
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeaderActions.(Grid.Row)" Value="1" />
+                        <Setter Target="HeaderActions.(Grid.Column)" Value="0" />
+                        <Setter Target="HeaderActions.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="HeaderActions.HorizontalAlignment" Value="Stretch" />
 
-        <!-- Month selector -->
-        <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" VerticalAlignment="Center">
-            <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}" />
-            <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}"
-                       Style="{StaticResource SubtitleTextBlockStyle}"
-                       VerticalAlignment="Center" MinWidth="180" TextAlignment="Center" />
-            <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}" />
-        </StackPanel>
+                        <Setter Target="SummaryColumn0.Width" Value="*" />
+                        <Setter Target="SummaryColumn1.Width" Value="0" />
+                        <Setter Target="SummaryColumn2.Width" Value="0" />
+                        <Setter Target="SummaryColumn3.Width" Value="0" />
+                        <Setter Target="BalanceCard.(Grid.Row)" Value="0" />
+                        <Setter Target="IncomeCard.(Grid.Row)" Value="1" />
+                        <Setter Target="IncomeCard.(Grid.Column)" Value="0" />
+                        <Setter Target="ExpenseCard.(Grid.Row)" Value="2" />
+                        <Setter Target="ExpenseCard.(Grid.Column)" Value="0" />
+                        <Setter Target="SavingsCard.(Grid.Row)" Value="3" />
+                        <Setter Target="SavingsCard.(Grid.Column)" Value="0" />
 
-        <!-- Summary tiles -->
-        <Grid Grid.Row="1" ColumnSpacing="{ThemeResource AppCardSpacing}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <cards:MetricCard Grid.Column="0" Title="Income" Glyph="&#xE8C7;" Tone="Positive"
-                              Value="{x:Bind Vm.Income, Mode=OneWay, Converter={StaticResource Currency}}" />
-            <cards:MetricCard Grid.Column="1" Title="Expense" Glyph="&#xE9D2;" Tone="Negative"
-                              Value="{x:Bind Vm.Expense, Mode=OneWay, Converter={StaticResource Currency}}" />
-            <cards:MetricCard Grid.Column="2" Title="Net" Glyph="&#xE8EF;" Tone="Neutral"
-                              Value="{x:Bind Vm.Net, Mode=OneWay, Converter={StaticResource Currency}}" />
-        </Grid>
+                        <Setter Target="ChartColumn0.Width" Value="*" />
+                        <Setter Target="ChartColumn1.Width" Value="0" />
+                        <Setter Target="CategoryChartCard.(Grid.Row)" Value="1" />
+                        <Setter Target="CategoryChartCard.(Grid.Column)" Value="0" />
+                        <Setter Target="ComparisonColumn0.Width" Value="*" />
+                        <Setter Target="ComparisonColumn1.Width" Value="0" />
+                        <Setter Target="AccountChartCard.(Grid.Row)" Value="1" />
+                        <Setter Target="AccountChartCard.(Grid.Column)" Value="0" />
+                        <Setter Target="ActivityColumn0.Width" Value="*" />
+                        <Setter Target="ActivityColumn1.Width" Value="0" />
+                        <Setter Target="RecentCard.(Grid.Row)" Value="1" />
+                        <Setter Target="RecentCard.(Grid.Column)" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
 
-        <common:SectionHeader Grid.Row="2" Title="Spending by category"
-                              Margin="{ThemeResource AppSectionHeaderMargin}" />
+                <VisualState x:Name="Medium">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SummaryColumn0.Width" Value="*" />
+                        <Setter Target="SummaryColumn1.Width" Value="*" />
+                        <Setter Target="SummaryColumn2.Width" Value="0" />
+                        <Setter Target="SummaryColumn3.Width" Value="0" />
+                        <Setter Target="BalanceCard.(Grid.Row)" Value="0" />
+                        <Setter Target="IncomeCard.(Grid.Row)" Value="0" />
+                        <Setter Target="IncomeCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ExpenseCard.(Grid.Row)" Value="1" />
+                        <Setter Target="ExpenseCard.(Grid.Column)" Value="0" />
+                        <Setter Target="SavingsCard.(Grid.Row)" Value="1" />
+                        <Setter Target="SavingsCard.(Grid.Column)" Value="1" />
 
-        <ScrollViewer Grid.Row="3">
-            <StackPanel Spacing="{ThemeResource AppControlSpacing}">
-                <ItemsControl ItemsSource="{x:Bind Vm.Spend, Mode=OneWay}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:CategoryBarVm">
-                            <Grid ColumnSpacing="12" Margin="0,2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis" />
-                                <Border Grid.Column="1" HorizontalAlignment="Left" Height="20" CornerRadius="4"
-                                        Background="{x:Bind ColorHex, Converter={StaticResource HexToBrush}}"
-                                        Width="{x:Bind Fraction, Converter={StaticResource FractionToWidth}}" />
-                                <TextBlock Grid.Column="2" Text="{x:Bind AmountLabel}" VerticalAlignment="Center"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </Grid>
+                        <Setter Target="ChartColumn0.Width" Value="*" />
+                        <Setter Target="ChartColumn1.Width" Value="*" />
+                        <Setter Target="CategoryChartCard.(Grid.Row)" Value="0" />
+                        <Setter Target="CategoryChartCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ComparisonColumn0.Width" Value="*" />
+                        <Setter Target="ComparisonColumn1.Width" Value="*" />
+                        <Setter Target="AccountChartCard.(Grid.Row)" Value="0" />
+                        <Setter Target="AccountChartCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ActivityColumn0.Width" Value="*" />
+                        <Setter Target="ActivityColumn1.Width" Value="*" />
+                        <Setter Target="RecentCard.(Grid.Row)" Value="0" />
+                        <Setter Target="RecentCard.(Grid.Column)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1100" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SummaryColumn0.Width" Value="*" />
+                        <Setter Target="SummaryColumn1.Width" Value="*" />
+                        <Setter Target="SummaryColumn2.Width" Value="*" />
+                        <Setter Target="SummaryColumn3.Width" Value="*" />
+                        <Setter Target="BalanceCard.(Grid.Row)" Value="0" />
+                        <Setter Target="IncomeCard.(Grid.Row)" Value="0" />
+                        <Setter Target="IncomeCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ExpenseCard.(Grid.Row)" Value="0" />
+                        <Setter Target="ExpenseCard.(Grid.Column)" Value="2" />
+                        <Setter Target="SavingsCard.(Grid.Row)" Value="0" />
+                        <Setter Target="SavingsCard.(Grid.Column)" Value="3" />
+
+                        <Setter Target="ChartColumn0.Width" Value="2*" />
+                        <Setter Target="ChartColumn1.Width" Value="*" />
+                        <Setter Target="CategoryChartCard.(Grid.Row)" Value="0" />
+                        <Setter Target="CategoryChartCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ComparisonColumn0.Width" Value="2*" />
+                        <Setter Target="ComparisonColumn1.Width" Value="*" />
+                        <Setter Target="AccountChartCard.(Grid.Row)" Value="0" />
+                        <Setter Target="AccountChartCard.(Grid.Column)" Value="1" />
+                        <Setter Target="ActivityColumn0.Width" Value="*" />
+                        <Setter Target="ActivityColumn1.Width" Value="2*" />
+                        <Setter Target="RecentCard.(Grid.Row)" Value="0" />
+                        <Setter Target="RecentCard.(Grid.Column)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer x:Name="DashboardScroller">
+            <StackPanel Padding="{ThemeResource AppPagePadding}"
+                        Spacing="{ThemeResource AppSectionSpacing}"
+                        MaxWidth="{ThemeResource AppPageMaxWidth}"
+                        HorizontalAlignment="Stretch">
+
+                <Grid x:Name="HeaderGrid" RowSpacing="10" ColumnSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" VerticalAlignment="Center">
+                        <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;"
+                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                AutomationProperties.Name="Previous month" />
+                        <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   VerticalAlignment="Center" MinWidth="165" TextAlignment="Center" />
+                        <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;"
+                                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                AutomationProperties.Name="Next month" />
+                    </StackPanel>
+                    <StackPanel x:Name="HeaderActions" Grid.Column="2" Orientation="Horizontal"
+                                Spacing="8" HorizontalAlignment="Right">
+                        <ComboBox Width="190" ItemsSource="{x:Bind Vm.AccountFilters}"
+                                  SelectedItem="{x:Bind Vm.SelectedAccountFilter, Mode=TwoWay}"
+                                  DisplayMemberPath="Name" PlaceholderText="All accounts"
+                                  AutomationProperties.Name="Account filter" />
+                        <Button Click="QuickAdd_Click" Style="{StaticResource AppAccentButtonStyle}"
+                                AutomationProperties.Name="Quick add transaction">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE710;" FontSize="14" />
+                                <TextBlock Text="Add transaction" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="SummaryGrid" ColumnSpacing="{ThemeResource AppCardSpacing}"
+                      RowSpacing="{ThemeResource AppCardSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="SummaryColumn0" Width="*" />
+                        <ColumnDefinition x:Name="SummaryColumn1" Width="*" />
+                        <ColumnDefinition x:Name="SummaryColumn2" Width="*" />
+                        <ColumnDefinition x:Name="SummaryColumn3" Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <cards:MetricCard x:Name="BalanceCard" Title="Total balance" Glyph="&#xE8C7;" Tone="Accent"
+                                      Value="{x:Bind Vm.TotalBalance, Mode=OneWay, Converter={StaticResource Currency}}" />
+                    <cards:MetricCard x:Name="IncomeCard" Grid.Column="1" Title="Income" Glyph="&#xE8C7;" Tone="Positive"
+                                      Value="{x:Bind Vm.Income, Mode=OneWay, Converter={StaticResource Currency}}" />
+                    <cards:MetricCard x:Name="ExpenseCard" Grid.Column="2" Title="Expenses" Glyph="&#xE9D2;" Tone="Negative"
+                                      Value="{x:Bind Vm.Expense, Mode=OneWay, Converter={StaticResource Currency}}" />
+                    <cards:MetricCard x:Name="SavingsCard" Grid.Column="3" Title="Savings rate" Glyph="&#xE74E;" Tone="Neutral"
+                                      Value="{x:Bind Vm.SavingsRateLabel, Mode=OneWay}" Subtitle="Income retained this period" />
+                </Grid>
+
+                <Grid x:Name="PrimaryChartsGrid" ColumnSpacing="{ThemeResource AppCardSpacing}"
+                      RowSpacing="{ThemeResource AppCardSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ChartColumn0" Width="2*" />
+                        <ColumnDefinition x:Name="ChartColumn1" Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <cards:AppCard Header="Cash-flow trend">
+                        <charts:CashFlowChart ItemsSource="{x:Bind Vm.CashFlow}" />
+                    </cards:AppCard>
+                    <cards:AppCard x:Name="CategoryChartCard" Grid.Column="1" Header="Spending by category">
+                        <charts:CategoryDonutChart ItemsSource="{x:Bind Vm.Categories}"
+                                                   CategorySelected="CategoryChart_CategorySelected" />
+                    </cards:AppCard>
+                </Grid>
+
+                <common:SectionHeader Title="Accounts" Subtitle="Balance at the end of the selected period" />
+                <ItemsRepeater ItemsSource="{x:Bind Vm.AccountBalances}">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout MinItemWidth="260" MinColumnSpacing="12" MinRowSpacing="12"
+                                           ItemsStretch="Fill" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="reports:AccountBalanceSummary">
+                            <Button HorizontalContentAlignment="Stretch" Padding="0"
+                                    Background="Transparent" BorderThickness="0"
+                                    Tag="{x:Bind}"
+                                    AutomationProperties.Name="{x:Bind Name}"
+                                    Click="AccountButton_Click">
+                                <cards:AccountCard AccountName="{x:Bind Name}"
+                                                   BalanceLabel="{x:Bind Balance, Converter={StaticResource Currency}}"
+                                                   CurrencyCode="{x:Bind Currency}"
+                                                   Subtitle="View account transactions" />
+                            </Button>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <common:EmptyState Title="No expenses this month"
-                                   Message="Add an expense to see the category breakdown here."
-                                   Glyph="&#xE9D2;"
-                                   Visibility="{x:Bind Vm.HasSpend, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <Grid x:Name="SecondaryChartsGrid" ColumnSpacing="{ThemeResource AppCardSpacing}"
+                      RowSpacing="{ThemeResource AppCardSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ComparisonColumn0" Width="2*" />
+                        <ColumnDefinition x:Name="ComparisonColumn1" Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <cards:AppCard Header="Income versus expenses">
+                        <charts:IncomeExpenseChart ItemsSource="{x:Bind Vm.IncomeExpense}" />
+                    </cards:AppCard>
+                    <cards:AppCard x:Name="AccountChartCard" Grid.Column="1" Header="Account distribution">
+                        <charts:AccountDistributionChart ItemsSource="{x:Bind Vm.AccountBalances}" />
+                    </cards:AppCard>
+                </Grid>
+
+                <Grid x:Name="ActivityGrid" ColumnSpacing="{ThemeResource AppCardSpacing}"
+                      RowSpacing="{ThemeResource AppCardSpacing}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ActivityColumn0" Width="*" />
+                        <ColumnDefinition x:Name="ActivityColumn1" Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <cards:AppCard Header="Budgets">
+                        <StackPanel Spacing="8">
+                            <ItemsControl ItemsSource="{x:Bind Vm.BudgetProgress}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="viewModels:BudgetProgressRow">
+                                        <cards:BudgetProgressCard CategoryName="{x:Bind CategoryName}" SpentLabel="{x:Bind SpentLabel}"
+                                                                  LimitLabel="{x:Bind LimitLabel}" RemainingLabel="{x:Bind RemainingLabel}"
+                                                                  Progress="{x:Bind Progress}" Status="{x:Bind Status}" Margin="0,3" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <common:EmptyState Title="No budgets configured" Message="Create a category budget to track spending progress."
+                                               Glyph="&#xE9D2;" Visibility="{x:Bind Vm.HasBudgets, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                            <Button Content="Manage budgets" Click="ManageBudgets_Click" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                    </cards:AppCard>
+                    <cards:AppCard x:Name="RecentCard" Grid.Column="1" Header="Recent transactions">
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{x:Bind Vm.RecentTransactions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="reports:RecentTransaction">
+                                        <Grid ColumnSpacing="10" Margin="2,7">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind DateLabel}"
+                                                       Style="{StaticResource AppSecondaryTextStyle}" />
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{x:Bind CategoryName}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{x:Bind Note}" TextTrimming="CharacterEllipsis"
+                                                           Style="{StaticResource AppSecondaryTextStyle}" FontSize="12" />
+                                            </StackPanel>
+                                            <common:AmountText Grid.Column="2" Amount="{x:Bind SignedAmount}"
+                                                               ShowSign="True" FontWeight="SemiBold" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <common:EmptyState Title="No transactions this period"
+                                               Message="Use Add transaction to record the first one."
+                                               Glyph="&#xE7BF;"
+                                               Visibility="{x:Bind Vm.HasRecentTransactions, Mode=OneWay, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                        </StackPanel>
+                    </cards:AppCard>
+                </Grid>
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -9,6 +9,7 @@ namespace BudgetBook.Data;
 public class AppDbContext : DbContext
 {
     public const string InitialMigrationId = "20260828170030_InitialCreate";
+    public const string BudgetsMigrationId = "20260829143000_AddBudgets";
 
     public AppDbContext()
     {
@@ -21,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<TransactionRecord> Transactions => Set<TransactionRecord>();
+    public DbSet<Budget> Budgets => Set<Budget>();
 
     public static string DbFolder
     {
@@ -61,6 +63,16 @@ public class AppDbContext : DbContext
             .WithMany(c => c.Transactions)
             .HasForeignKey(t => t.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        b.Entity<Budget>()
+            .HasOne(budget => budget.Category)
+            .WithMany(category => category.Budgets)
+            .HasForeignKey(budget => budget.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        b.Entity<Budget>()
+            .HasIndex(budget => budget.CategoryId)
+            .IsUnique();
 
         // SQLite has no decimal type; store as TEXT with invariant culture ordering.
         foreach (var p in b.Model.GetEntityTypes()
@@ -116,6 +128,7 @@ public class AppDbContext : DbContext
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Accounts'),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Categories'),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Transactions'),
+                    EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Budgets'),
                     EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '__EFMigrationsHistory');
                 """;
 
@@ -125,7 +138,8 @@ public class AppDbContext : DbContext
             var hasLegacyTables = reader.GetInt64(0) == 1
                 && reader.GetInt64(1) == 1
                 && reader.GetInt64(2) == 1;
-            var hasMigrationHistory = reader.GetInt64(3) == 1;
+            var hasBudgetsTable = reader.GetInt64(3) == 1;
+            var hasMigrationHistory = reader.GetInt64(4) == 1;
             reader.Close();
 
             if (!hasLegacyTables || hasMigrationHistory) return;
@@ -143,6 +157,16 @@ public class AppDbContext : DbContext
                 """;
             baseline.Parameters.AddWithValue("$migrationId", InitialMigrationId);
             baseline.ExecuteNonQuery();
+            if (hasBudgetsTable)
+            {
+                baseline.CommandText = """
+                    INSERT OR IGNORE INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+                    VALUES ($budgetsMigrationId, '8.0.11');
+                    """;
+                baseline.Parameters.Clear();
+                baseline.Parameters.AddWithValue("$budgetsMigrationId", BudgetsMigrationId);
+                baseline.ExecuteNonQuery();
+            }
             transaction.Commit();
         }
         finally

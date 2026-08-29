@@ -7,7 +7,8 @@ publishing end to end.
 
 ## What it does
 
-- **Dashboard** – month picker, income / expense / net tiles, spending-by-category bars.
+- **Dashboard** – responsive finance overview with month/account filters, quick entry,
+  metric and account cards, charts, recent transactions, and drill-through filtering.
 - **Transactions** – list by month, add / edit / delete via dialog (type, amount, date,
   account, category, note).
 - **Accounts** – CRUD, live balance = opening balance + signed transactions.
@@ -34,7 +35,7 @@ folder before launching the app.
 | `Reports/` | Pure finance calculations and chart-ready report models |
 | `Settings/` | Appearance preference models and live theme application |
 | `Themes/` | Semantic color, spacing, typography, and control resources |
-| `Controls/` | Reusable card, finance summary, list-item, empty-state, skeleton, and chart-legend controls |
+| `Controls/` | Reusable cards, finance summaries, list items, empty states, skeletons, and LiveCharts controls |
 | `ViewModels/*.cs` | CommunityToolkit.Mvvm view models, one per page |
 | `Converters.cs` | hex→brush, fraction→width, currency, bool→visibility |
 | `Pages/*.xaml` | Dashboard / Transactions / Accounts / Categories / Settings |

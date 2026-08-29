@@ -12,6 +12,61 @@ public record CategorySpend(string Name, string ColorHex, decimal Amount);
 /// <summary>Pure finance calculations shared by reports and unit tests.</summary>
 public static class FinanceCalculator
 {
+    public static BudgetVsActualReport CalculateBudgetReport(
+        ReportFilter filter,
+        IEnumerable<Budget> budgets,
+        IEnumerable<TransactionRecord> transactions,
+        DateTime? asOfDate = null)
+    {
+        var validated = filter.Validate();
+        var allTransactions = transactions.ToList();
+        var reportDay = (asOfDate ?? DateTime.Today).Date;
+        var totalDays = validated.DayCount;
+        var elapsedDays = reportDay < validated.StartDate ? 0
+            : reportDay >= validated.EndDateExclusive ? totalDays
+            : Math.Clamp((reportDay - validated.StartDate).Days + 1, 1, totalDays);
+
+        var items = budgets
+            .Where(budget => budget.StartDate.Date < validated.EndDateExclusive)
+            .Select(budget =>
+            {
+                var spent = allTransactions.Where(transaction => transaction.Type == TransactionType.Expense &&
+                    transaction.CategoryId == budget.CategoryId && transaction.Date >= validated.StartDate &&
+                    transaction.Date < validated.EndDateExclusive).Sum(transaction => transaction.Amount);
+                var baseLimit = budget.PeriodType == BudgetPeriodType.Weekly
+                    ? budget.Amount * (decimal)Math.Ceiling(totalDays / 7d)
+                    : budget.Amount * CountMonths(validated.StartDate, validated.EndDateExclusive);
+                var carry = budget.RolloverEnabled && budget.PeriodType == BudgetPeriodType.Monthly
+                    ? CalculateMonthlyCarry(budget, validated.StartDate, allTransactions)
+                    : 0m;
+                var effectiveLimit = baseLimit + carry;
+                var projected = elapsedDays == 0 ? 0m : spent / elapsedDays * totalDays;
+                return new BudgetProgress(budget.Id, budget.CategoryId, budget.Category?.Name ?? "Category",
+                    budget.Category?.ColorHex ?? "#888888", baseLimit, effectiveLimit, spent, projected,
+                    budget.PeriodType, budget.RolloverEnabled);
+            })
+            .OrderByDescending(item => item.Progress)
+            .ThenBy(item => item.CategoryName)
+            .ToList();
+
+        return new BudgetVsActualReport(validated.StartDate, validated.EndDateExclusive, items);
+    }
+
+    private static int CountMonths(DateTime start, DateTime endExclusive)
+        => Math.Max(1, (endExclusive.Year - start.Year) * 12 + endExclusive.Month - start.Month);
+
+    private static decimal CalculateMonthlyCarry(Budget budget, DateTime reportStart, IEnumerable<TransactionRecord> transactions)
+    {
+        var budgetStart = new DateTime(budget.StartDate.Year, budget.StartDate.Month, 1);
+        var reportMonth = new DateTime(reportStart.Year, reportStart.Month, 1);
+        var completedMonths = Math.Max(0, (reportMonth.Year - budgetStart.Year) * 12 + reportMonth.Month - budgetStart.Month);
+        if (completedMonths == 0) return 0m;
+        var priorSpent = transactions.Where(transaction => transaction.Type == TransactionType.Expense &&
+            transaction.CategoryId == budget.CategoryId && transaction.Date >= budgetStart && transaction.Date < reportMonth)
+            .Sum(transaction => transaction.Amount);
+        return Math.Max(0m, budget.Amount * completedMonths - priorSpent);
+    }
+
     public static MonthSummary Summarize(IEnumerable<TransactionRecord> transactions)
     {
         var income = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);

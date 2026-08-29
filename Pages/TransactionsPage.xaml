@@ -9,47 +9,92 @@
     xmlns:data="using:BudgetBook.Data"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource AppPageBackgroundBrush}"
-          Padding="{ThemeResource AppPagePadding}"
-          RowSpacing="{ThemeResource AppSectionSpacing}">
+    <Page.Resources>
+        <CollectionViewSource x:Name="GroupedTransactions" IsSourceGrouped="True" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource AppPageBackgroundBrush}" Padding="{ThemeResource AppPagePadding}"
+          RowSpacing="{ThemeResource AppControlSpacing}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid>
             <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" VerticalAlignment="Center">
-                <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;"
-                        FontFamily="{StaticResource SymbolThemeFontFamily}" />
-                <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
+                <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;" FontFamily="{StaticResource SymbolThemeFontFamily}" />
+                <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}"
                            VerticalAlignment="Center" MinWidth="180" TextAlignment="Center" />
-                <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;"
-                        FontFamily="{StaticResource SymbolThemeFontFamily}" />
+                <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;" FontFamily="{StaticResource SymbolThemeFontFamily}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" HorizontalAlignment="Right">
-                <Button Click="Add_Click" Style="{StaticResource AppAccentButtonStyle}"
-                        AutomationProperties.Name="Add transaction">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon Glyph="&#xE710;" FontSize="14" />
-                        <TextBlock Text="Add" />
-                    </StackPanel>
+                <Button Click="Add_Click" Style="{StaticResource AppAccentButtonStyle}" AutomationProperties.Name="Add transaction">
+                    <StackPanel Orientation="Horizontal" Spacing="6"><FontIcon Glyph="&#xE710;" FontSize="14" /><TextBlock Text="Add" /></StackPanel>
                 </Button>
                 <Button Click="Edit_Click" Content="Edit" />
-                <Button Command="{x:Bind Vm.DeleteSelectedCommand}" Content="Delete" />
+                <Button Click="Delete_Click" Content="Delete" />
             </StackPanel>
         </Grid>
 
-        <ListView Grid.Row="1"
-                  ItemsSource="{x:Bind Vm.Items, Mode=OneWay}"
-                  SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}"
-                  HorizontalContentAlignment="Stretch"
-                  DoubleTapped="List_DoubleTapped">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="data:TransactionRecord">
-                    <common:TransactionListItem Transaction="{x:Bind}" Margin="0,3" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Grid Grid.Row="1" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchBox" PlaceholderText="Search note, account, or category" Text="{x:Bind Vm.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Header><TextBlock Text="Search (Ctrl+F)" /></TextBox.Header>
+            </TextBox>
+            <ComboBox x:Name="TypeFilterBox" Grid.Column="1" Header="Type" SelectionChanged="TypeFilter_Changed" SelectedIndex="0" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="All types" /><ComboBoxItem Content="Expense" /><ComboBoxItem Content="Income" /><ComboBoxItem Content="Transfer" />
+            </ComboBox>
+            <ComboBox x:Name="AccountFilterBox" Grid.Column="2" Header="Account" ItemsSource="{x:Bind Vm.AccountFilters, Mode=OneWay}"
+                      SelectionChanged="AccountFilter_Changed" HorizontalAlignment="Stretch" />
+            <ComboBox x:Name="CategoryFilterBox" Grid.Column="3" Header="Category" ItemsSource="{x:Bind Vm.CategoryFilters, Mode=OneWay}"
+                      SelectionChanged="CategoryFilter_Changed" HorizontalAlignment="Stretch" />
+        </Grid>
+
+        <InfoBar Grid.Row="2" IsOpen="{x:Bind Vm.HasFilter, Mode=OneWay}" IsClosable="False" Severity="Informational"
+                 Title="Filters active" Message="Search and filters are applied to this month.">
+            <InfoBar.ActionButton><Button Content="Clear all" Command="{x:Bind Vm.ClearFilterCommand}" /></InfoBar.ActionButton>
+        </InfoBar>
+
+        <InfoBar x:Name="UndoBar" Grid.Row="3" IsOpen="False" IsClosable="True" Severity="Success"
+                 Title="Transaction deleted" Message="You can restore it while this message is visible.">
+            <InfoBar.ActionButton><Button Content="Undo" Click="Undo_Click" /></InfoBar.ActionButton>
+        </InfoBar>
+
+        <Grid Grid.Row="4" ColumnSpacing="16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="EditorColumn" Width="0" /></Grid.ColumnDefinitions>
+            <ListView x:Name="TransactionsList" ItemsSource="{Binding Source={StaticResource GroupedTransactions}}"
+                      SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}" SelectionChanged="TransactionsList_SelectionChanged"
+                      HorizontalContentAlignment="Stretch" DoubleTapped="List_DoubleTapped">
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate><TextBlock Text="{Binding Header}" FontWeight="SemiBold" Margin="4,14,4,6" /></DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="data:TransactionRecord"><common:TransactionListItem Transaction="{x:Bind}" Margin="0,3" /></DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Border x:Name="EditorPane" Grid.Column="1" Visibility="Collapsed" Padding="20" CornerRadius="12"
+                    Background="{ThemeResource AppCardBackgroundBrush}" BorderBrush="{ThemeResource AppCardBorderBrush}" BorderThickness="1">
+                <ScrollViewer><StackPanel Spacing="12">
+                    <Grid><TextBlock Text="Edit transaction" Style="{StaticResource AppSectionTitleTextStyle}" /><Button Content="&#xE711;" HorizontalAlignment="Right" Click="CloseEditor_Click" FontFamily="{StaticResource SymbolThemeFontFamily}" /></Grid>
+                    <ComboBox x:Name="PaneTypeBox" Header="Type" ItemsSource="{x:Bind TransactionTypes}" HorizontalAlignment="Stretch" />
+                    <NumberBox x:Name="PaneAmountBox" Header="Amount" Minimum="0" SpinButtonPlacementMode="Compact" />
+                    <DatePicker x:Name="PaneDatePicker" Header="Date" />
+                    <ComboBox x:Name="PaneAccountBox" Header="Account" ItemsSource="{x:Bind Vm.Accounts}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
+                    <ComboBox x:Name="PaneCategoryBox" Header="Category" ItemsSource="{x:Bind Vm.Categories}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
+                    <TextBox x:Name="PaneNoteBox" Header="Note" />
+                    <Button Content="Save changes" Style="{StaticResource AppAccentButtonStyle}" Click="SavePane_Click" HorizontalAlignment="Stretch" />
+                </StackPanel></ScrollViewer>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

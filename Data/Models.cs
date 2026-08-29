@@ -10,6 +10,12 @@ public enum TransactionType
     Transfer = 2,
 }
 
+public enum BudgetPeriodType
+{
+    Monthly = 0,
+    Weekly = 1,
+}
+
 public class Account
 {
     public int Id { get; set; }
@@ -29,6 +35,18 @@ public class Category
     public TransactionType Kind { get; set; } = TransactionType.Expense;
 
     public List<TransactionRecord> Transactions { get; set; } = new();
+    public List<Budget> Budgets { get; set; } = new();
+}
+
+public class Budget
+{
+    public int Id { get; set; }
+    public int CategoryId { get; set; }
+    public Category? Category { get; set; }
+    public decimal Amount { get; set; }
+    public BudgetPeriodType PeriodType { get; set; } = BudgetPeriodType.Monthly;
+    public DateTime StartDate { get; set; } = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    public bool RolloverEnabled { get; set; }
 }
 
 public class TransactionRecord

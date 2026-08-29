@@ -9,6 +9,7 @@ public enum BudgetProgressStatus
 {
     Normal,
     Warning,
+    Critical,
     Exceeded,
 }
 
@@ -47,6 +48,7 @@ public sealed partial class BudgetProgressCard : UserControl
         var key = Status switch
         {
             BudgetProgressStatus.Warning => "AppChartPalette5",
+            BudgetProgressStatus.Critical => "AppChartPalette4",
             BudgetProgressStatus.Exceeded => "AppNegativeAmountBrush",
             _ => "AppPositiveAmountBrush",
         };
