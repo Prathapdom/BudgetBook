@@ -25,10 +25,10 @@
 
         <Grid>
             <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" VerticalAlignment="Center">
-                <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;" FontFamily="{StaticResource SymbolThemeFontFamily}" />
+                <Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;" FontFamily="{StaticResource SymbolThemeFontFamily}" AutomationProperties.Name="Previous month" />
                 <TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}"
                            VerticalAlignment="Center" MinWidth="180" TextAlignment="Center" />
-                <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;" FontFamily="{StaticResource SymbolThemeFontFamily}" />
+                <Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;" FontFamily="{StaticResource SymbolThemeFontFamily}" AutomationProperties.Name="Next month" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="{ThemeResource AppControlSpacing}" HorizontalAlignment="Right">
                 <Button Click="Add_Click" Style="{StaticResource AppAccentButtonStyle}" AutomationProperties.Name="Add transaction">
@@ -69,6 +69,7 @@
         <Grid Grid.Row="4" ColumnSpacing="16">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="EditorColumn" Width="0" /></Grid.ColumnDefinitions>
             <ListView x:Name="TransactionsList" ItemsSource="{Binding Source={StaticResource GroupedTransactions}}"
+                      AutomationProperties.Name="Transactions grouped by date"
                       SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}" SelectionChanged="TransactionsList_SelectionChanged"
                       HorizontalContentAlignment="Stretch" DoubleTapped="List_DoubleTapped">
                 <ListView.GroupStyle>
@@ -86,7 +87,7 @@
             <Border x:Name="EditorPane" Grid.Column="1" Visibility="Collapsed" Padding="20" CornerRadius="12"
                     Background="{ThemeResource AppCardBackgroundBrush}" BorderBrush="{ThemeResource AppCardBorderBrush}" BorderThickness="1">
                 <ScrollViewer><StackPanel Spacing="12">
-                    <Grid><TextBlock Text="Edit transaction" Style="{StaticResource AppSectionTitleTextStyle}" /><Button Content="&#xE711;" HorizontalAlignment="Right" Click="CloseEditor_Click" FontFamily="{StaticResource SymbolThemeFontFamily}" /></Grid>
+                    <Grid><TextBlock Text="Edit transaction" Style="{StaticResource AppSectionTitleTextStyle}" /><Button Content="&#xE711;" HorizontalAlignment="Right" Click="CloseEditor_Click" FontFamily="{StaticResource SymbolThemeFontFamily}" AutomationProperties.Name="Close transaction editor" /></Grid>
                     <ComboBox x:Name="PaneTypeBox" Header="Type" ItemsSource="{x:Bind TransactionTypes}" HorizontalAlignment="Stretch" />
                     <NumberBox x:Name="PaneAmountBox" Header="Amount" Minimum="0" SpinButtonPlacementMode="Compact" />
                     <DatePicker x:Name="PaneDatePicker" Header="Date" />

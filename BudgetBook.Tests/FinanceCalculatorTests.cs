@@ -39,6 +39,19 @@ public sealed class FinanceCalculatorTests
         Assert.AreEqual(1_099.75m, balance);
     }
 
+    [TestMethod]
+    public void DecimalCalculations_RemainExactAcrossManySmallValuesAndLinkedTransfers()
+    {
+        var transactions = Enumerable.Range(0, 1_000)
+            .Select(_ => Transaction(TransactionType.Expense, 0.01m)).ToList();
+        transactions.Add(new TransactionRecord { Type = TransactionType.Transfer, TransferDirection = TransferDirection.Outgoing, Amount = 123.45m });
+        transactions.Add(new TransactionRecord { Type = TransactionType.Transfer, TransferDirection = TransferDirection.Incoming, Amount = 123.45m });
+
+        var balance = FinanceCalculator.CalculateBalance(100m, transactions);
+
+        Assert.AreEqual(90m, balance);
+    }
+
     private static TransactionRecord Transaction(TransactionType type, decimal amount)
         => new() { Type = type, Amount = amount };
 }

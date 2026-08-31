@@ -52,13 +52,24 @@ internal static class ChartTheme
         => new(Windows.UI.Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue));
 
     public static SKColor Text(ElementTheme theme)
-        => theme == ElementTheme.Dark ? new SKColor(245, 245, 245) : new SKColor(48, 48, 48);
+        => HighContrastColor(UIColorType.Foreground) ?? (theme == ElementTheme.Dark ? new SKColor(245, 245, 245) : new SKColor(48, 48, 48));
 
     public static SKColor Grid(ElementTheme theme)
-        => theme == ElementTheme.Dark ? new SKColor(255, 255, 255, 46) : new SKColor(0, 0, 0, 40);
+        => HighContrastColor(UIColorType.Foreground)?.WithAlpha(110) ?? (theme == ElementTheme.Dark ? new SKColor(255, 255, 255, 46) : new SKColor(0, 0, 0, 40));
 
     public static SKColor TooltipBackground(ElementTheme theme)
-        => theme == ElementTheme.Dark ? new SKColor(32, 32, 32) : new SKColor(250, 250, 250);
+        => HighContrastColor(UIColorType.Background) ?? (theme == ElementTheme.Dark ? new SKColor(32, 32, 32) : new SKColor(250, 250, 250));
+
+    private static SKColor? HighContrastColor(UIColorType type)
+    {
+        try
+        {
+            if (!new AccessibilitySettings().HighContrast) return null;
+            var color = new UISettings().GetColorValue(type);
+            return new SKColor(color.R, color.G, color.B, color.A);
+        }
+        catch { return null; }
+    }
 
     private static readonly SKColor[] DefaultPalette =
     [

@@ -5,7 +5,7 @@
     xmlns:cards="using:BudgetBook.Controls.Cards" xmlns:vm="using:BudgetBook.ViewModels" mc:Ignorable="d">
     <Grid Background="{ThemeResource AppPageBackgroundBrush}" Padding="{ThemeResource AppPagePadding}" RowSpacing="{ThemeResource AppSectionSpacing}">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-        <Grid><StackPanel Orientation="Horizontal" Spacing="8"><Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;" FontFamily="{StaticResource SymbolThemeFontFamily}" /><TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}" Style="{StaticResource AppPageTitleTextStyle}" MinWidth="220" TextAlignment="Center" /><Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;" FontFamily="{StaticResource SymbolThemeFontFamily}" /></StackPanel>
+        <Grid><StackPanel Orientation="Horizontal" Spacing="8"><Button Command="{x:Bind Vm.PreviousMonthCommand}" Content="&#xE76B;" FontFamily="{StaticResource SymbolThemeFontFamily}" AutomationProperties.Name="Previous month" /><TextBlock Text="{x:Bind Vm.MonthLabel, Mode=OneWay}" Style="{StaticResource AppPageTitleTextStyle}" MinWidth="220" TextAlignment="Center" /><Button Command="{x:Bind Vm.NextMonthCommand}" Content="&#xE76C;" FontFamily="{StaticResource SymbolThemeFontFamily}" AutomationProperties.Name="Next month" /></StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right"><Button Click="Add_Click" Content="Add budget" Style="{StaticResource AppAccentButtonStyle}" /><Button Click="Edit_Click" Content="Edit" /><Button Click="Delete_Click" Content="Delete" /></StackPanel>
         </Grid>
         <Grid Grid.Row="1" ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -13,7 +13,7 @@
             <cards:MetricCard Grid.Column="1" Title="Spent" Value="{x:Bind Vm.TotalSpentLabel, Mode=OneWay}" Tone="Negative" Glyph="&#xE7BF;" />
             <cards:MetricCard Grid.Column="2" Title="Projected" Value="{x:Bind Vm.TotalProjectedLabel, Mode=OneWay}" Tone="Neutral" Glyph="&#xE9D9;" />
         </Grid>
-        <ListView Grid.Row="2" ItemsSource="{x:Bind Vm.Items}" SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}" HorizontalContentAlignment="Stretch" DoubleTapped="List_DoubleTapped">
+        <ListView Grid.Row="2" ItemsSource="{x:Bind Vm.Items}" SelectedItem="{x:Bind Vm.Selected, Mode=TwoWay}" HorizontalContentAlignment="Stretch" DoubleTapped="List_DoubleTapped" AutomationProperties.Name="Category budgets">
             <ListView.ItemsPanel><ItemsPanelTemplate><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" /></ItemsPanelTemplate></ListView.ItemsPanel>
             <ListView.ItemContainerStyle><Style TargetType="ListViewItem"><Setter Property="MinWidth" Value="360" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style></ListView.ItemContainerStyle>
             <ListView.ItemTemplate><DataTemplate x:DataType="vm:BudgetProgressRow"><cards:BudgetProgressCard CategoryName="{x:Bind CategoryName}" SpentLabel="{x:Bind SpentLabel}" LimitLabel="{x:Bind LimitLabel}" RemainingLabel="{x:Bind RemainingLabel}" Progress="{x:Bind Progress}" Status="{x:Bind Status}" Margin="3" /></DataTemplate></ListView.ItemTemplate>

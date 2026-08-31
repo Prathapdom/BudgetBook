@@ -3,6 +3,7 @@ using BudgetBook.Reports;
 using BudgetBook.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace BudgetBook.Tests;
 
@@ -194,6 +195,39 @@ public sealed class ReportServiceTests
         Assert.HasCount(1, recent);
         Assert.AreEqual("Lunch", recent[0].Note);
         Assert.AreEqual("Food", recent[0].CategoryName);
+    }
+
+    [TestMethod]
+    [Timeout(15000)]
+    public async Task LargeMonth_TenThousandRows_RemainsExactAndLoadsWithinReleaseBudget()
+    {
+        await using (var db = await _factory.CreateDbContextAsync())
+        {
+            db.Transactions.AddRange(Enumerable.Range(0, 10_000).Select(index => new TransactionRecord
+            {
+                Type = index % 5 == 0 ? TransactionType.Income : TransactionType.Expense,
+                Amount = 0.01m,
+                Date = new DateTime(2026, 9, index % 28 + 1),
+                AccountId = _cashAccountId,
+                CategoryId = _expenseCategoryId,
+                Note = $"Load row {index}",
+            }));
+            await db.SaveChangesAsync();
+        }
+        var filter = new ReportFilter(new DateTime(2026, 9, 1), new DateTime(2026, 10, 1));
+        var stopwatch = Stopwatch.StartNew();
+
+        var summary = await _reports.GetSummaryAsync(filter);
+        var breakdown = await _reports.GetExpenseBreakdownAsync(filter);
+        var recent = await _reports.GetRecentTransactionsAsync(filter, 10);
+        stopwatch.Stop();
+
+        Assert.AreEqual(20m, summary.Income);
+        Assert.AreEqual(80m, summary.Expense);
+        Assert.AreEqual(10_000, summary.TransactionCount);
+        Assert.AreEqual(80m, breakdown.Single().Amount);
+        Assert.HasCount(10, recent);
+        Assert.IsTrue(stopwatch.Elapsed < TimeSpan.FromSeconds(8), $"Large-month reports took {stopwatch.Elapsed}.");
     }
 
     private async Task AddTransactionAsync(
